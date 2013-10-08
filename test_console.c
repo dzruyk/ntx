@@ -929,7 +929,6 @@ main (int argc, char *argv[])
   GSList *group = NULL;
   gint i;
 
-  g_debug ("fuck this\n");
   gtk_set_locale ();
 
   gtk_init (&argc, &argv);
