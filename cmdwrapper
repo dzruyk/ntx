@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# This shell script wraps C_OS_COMMAND received from the server.
+# Be carefull what you run, or this might be definitely a security hole!
+#
+##
+
+case $1 in
+  mspaint)
+    /usr/bin/gimp $2
+    ;;
+  "c:/windows/command/soffice")
+    shift 1
+    $HOME/bin/soffice $@
+    ;;
+  "$HOME/bin\PF_Client\XMagicPFCl.exe")
+    shift 1
+    wine PF_Client/XMagicPFCl.exe $@
+    ;;
+  "$HOME/bin\XCube\XMagicCube.exe")
+    shift 1
+    wine XCube/XMagicCube.exe $@
+    ;;
+  "$HOME/bin\PF_Design\XMagicPFDn.exe")
+    shift 1
+    wine PF_Design/XMagicPFDn.exe $@
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+

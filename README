@@ -1,0 +1,20 @@
+http://www.jwz.org/doc/x-cut-and-paste.html
+http://habrahabr.ru/post/48954/
+http://www.gtk.org/tutorial1.2/gtk_tut-22.html
+
+(10:04:06 PM) sitkarev: Потом заглядывать в PRIMARY и пробовать вытащить из него текст utf-8.
+(10:04:27 PM) dz_ruyk: ну да, но это на уровне виджета делать или в test_console?
+(10:04:45 PM) sitkarev: Если окажется, что он есть, то генерировать событие "text-pasted".
+(10:04:58 PM) sitkarev: test_console то тут при чём вообще?
+(10:05:10 PM) sitkarev: Виджет должен его сам перехватить.
+(10:05:20 PM) sitkarev: И пропустить вниз, если окажется, что это не вставка текста.
+
+(10:07:38 PM) sitkarev: Enter, Backspace и Tab нужно будет конвертировать, как минимум.
+(10:08:56 PM) sitkarev: Со вставкой я тебе потом объясню.
+(10:09:07 PM) sitkarev: Там нельзя просто взять и послать текст.
+(10:09:18 PM) sitkarev: Нужно будет написать аналог key_send() но для буфера с utf-8.
+(10:10:09 PM) sitkarev: Там нужно сделать switch() по unicode кодам, выловить \t, \r, \n, \b и печатаемые символы.
+(10:12:11 PM) sitkarev-mobile2 left the room (quit: Read error: Connection reset by peer).
+(10:13:42 PM) sitkarev: Потом к каждому добавить '+' и сформировать такой буфер на отправку.
+(10:15:01 PM) sitkarev: Нужно будет сделать ф-ю, похожую на key_iconv_send() и придётся её в public вытащить.
+
