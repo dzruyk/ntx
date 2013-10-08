@@ -5,7 +5,7 @@ CFLAGS = -Wall -O0 -g -D_XOPEN_SOURCE=600 -DG_ENABLE_DEBUG -D_CLIENT_DEBUG `pkg-
 CFLAGS += -I/usr/include/fontconfig
 LIBS = `pkg-config --libs gtk+-x11-2.0` -lfreetype -lfontconfig
 OBJECTS = fc.o fontsel.o console.o nvt.o client.o gui.o key.o chn.o \
-	  chn_telnet.o chn_echo.o chn_pty.o fio.o fiorw.o
+	  chn_telnet.o chn_echo.o chn_pty.o fiorw.o
 HEADERS = internal.h nvt.h console.h
 BINARIES = ntx test_console test_fio test_spawn fio
 
@@ -66,5 +66,5 @@ fio: fio.o
 	$(COMPILE) -o $@ $<
 
 clean:
-	-rm -rf $(OBJECTS) $(BINARIES) *~
+	-rm -rf *.o $(BINARIES) *~
 
