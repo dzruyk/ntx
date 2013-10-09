@@ -114,7 +114,7 @@ typedef struct {
   gdouble x2;
   gdouble y2;
   GString *last_selected;
-} ConsoleSelection;
+} ConsoleTextSelection;
 
 typedef struct _ConsoleChar
 {
@@ -163,7 +163,7 @@ struct _ConsolePrivate {
   ConsoleColor bg_color;        /* character background color */
   ConsoleCharAttr attr;         /* character attributes */
 
-  ConsoleSelection console_selection;
+  ConsoleTextSelection text_selection; /* */
 
   /* horizontal TAB position bitmap
    */
@@ -198,13 +198,11 @@ static void     invalidate_char_rect   (Console        *console,
 static void     invalidate_cursor_rect (Console        *console);
 static gboolean console_cursor_timer   (gpointer        user_data);
 
-/* Callbacks:
- */
 static gboolean
 console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
   Console *console = (Console *) widget;
-  ConsoleSelection *cs = &console->priv->console_selection;
+  ConsoleTextSelection *cs = &console->priv->text_selection;
   guint modifiers;
 
   g_assert (widget == user_data);
@@ -239,7 +237,7 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
 static void
 get_selected_text(Console *console)
 {
-  ConsoleSelection *cs = &console->priv->console_selection;
+  ConsoleTextSelection *cs = &console->priv->text_selection;
   gint x1, y1;
   gint x2, y2;
   gint char_width, char_height;
@@ -284,7 +282,7 @@ get_selected_text(Console *console)
 static void
 update_selection(Console *console, gint x, gint y)
 {
-  ConsoleSelection *cs = &console->priv->console_selection;
+  ConsoleTextSelection *cs = &console->priv->text_selection;
 
   g_assert (cs->x1 != -1 && cs->y1 != -1 &&
             cs->x2 != -1 && cs->y2 != -1);
@@ -299,7 +297,7 @@ gboolean
 console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
   Console *console = (Console *) widget;
-  ConsoleSelection *cs = &console->priv->console_selection;
+  ConsoleTextSelection *cs = &console->priv->text_selection;
   GtkClipboard *clipboard;
 
   g_assert (widget == user_data);
@@ -332,7 +330,7 @@ gboolean
 console_motion_notify_event_cb (GtkWidget *widget, GdkEventMotion *event, gpointer user_data)
 {
   Console *console = (Console *) widget;
-  ConsoleSelection *cs = &console->priv->console_selection;
+  ConsoleTextSelection *cs = &console->priv->text_selection;
 
   g_assert (widget == user_data);
 
@@ -711,11 +709,11 @@ console_init (Console *console)
 
   /* initial selection
    */
-  priv->console_selection.x1 = -1;
-  priv->console_selection.y1 = -1;
-  priv->console_selection.x2 = -1;
-  priv->console_selection.y2 = -1;
-  priv->console_selection.last_selected = g_string_new("");
+  priv->text_selection.x1 = -1;
+  priv->text_selection.y1 = -1;
+  priv->text_selection.x2 = -1;
+  priv->text_selection.y2 = -1;
+  priv->text_selection.last_selected = g_string_new("");
 
   /* set default TAB position each 8 characters */
   for (i = 0; i < TABMAP_SIZE; i++)
@@ -1411,16 +1409,16 @@ console_draw (GtkWidget *widget, GdkEventExpose *event)
 
   if (scr != NULL)
     {
-      ConsoleSelection *cs = &priv->console_selection;
+      ConsoleTextSelection *cs = &priv->text_selection;
       GdkRectangle selection;
 
       selection.x = MIN(cs->x1, cs->x2);
       selection.y = MIN(cs->y1, cs->y2);
-
       selection.width = ABS(cs->x2 - cs->x1);
       selection.height = ABS(cs->y2 - cs->y1);
       g_debug ("selection x,y (%d, %d) width, height (%d, %d)", selection.x,
                selection.y, selection.width, selection.height);
+
       for (y = 0; y < height; y++)
         {
           for (x = 0; x < width; x++)
@@ -1446,17 +1444,19 @@ console_draw (GtkWidget *widget, GdkEventExpose *event)
               /* shortcut to character */
               chr = scr + y*width + x;
 
+              color = &chr->color;
+              bg_color = &chr->bg_color;
+
               /* Swap colors if char is selected */
               if (gdk_rectangle_intersect(&rect, &selection, NULL))
                 {
+                  ConsoleColor *tmp;
+
                   g_debug ("intersect");
-                  color = &chr->bg_color;
-                  bg_color = &chr->color;
-                }
-              else
-                {
-                  color = &chr->color;
-                  bg_color = &chr->bg_color;
+
+                  tmp = color;
+                  color = bg_color;
+                  bg_color = tmp;
                 }
 
               /* draw background rectangle at a character position */
