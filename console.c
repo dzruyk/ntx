@@ -245,7 +245,7 @@ get_selected_text(Console *console)
   gint i, j;
 
   g_assert (cs->x1 != -1 && cs->y1 != -1 &&
-           cs->x2 != -1 && cs->y2 != -1);
+            cs->x2 != -1 && cs->y2 != -1);
   
   char_width = console->priv->char_width;
   char_height = console->priv->char_height;
@@ -306,7 +306,7 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
   if (event->button == LEFT_MOUSE_BUTTON &&
       cs->x1 != -1 && cs->y1 != -1)
     {
-      /* We are started selection. */
+      /* end of selection */
       
       g_debug ("button_release_event_cb (x2, y2) (%f, %f)", event->x, event->y);
 
@@ -573,11 +573,11 @@ console_class_init (ConsoleClass *klass)
                                                      CONSOLE_BLINK_STEADY, CONSOLE_BLINK_FAST,
                                                      CONSOLE_BLINK_MEDIUM,
                                                      G_PARAM_READWRITE));
-  console_signals[TEXT_SELECTED] = 
+  console_signals[TEXT_SELECTED] =
     g_signal_new ("text-selected",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ConsoleClass, text_selected_event),
+                  G_STRUCT_OFFSET (ConsoleClass, text_selected),
                   NULL, NULL,
                   //_gtk_marshal_VOID__OBJECT,
                   NULL,
@@ -1439,8 +1439,8 @@ console_draw (GtkWidget *widget, GdkEventExpose *event)
               rect.width = char_width;
 
               /* skip this character if we are out of redraw requested region */
-              //if (gdk_region_rect_in (event->region, &rect) == GDK_OVERLAP_RECTANGLE_OUT)
-               //   continue;
+              if (gdk_region_rect_in (event->region, &rect) == GDK_OVERLAP_RECTANGLE_OUT)
+                 continue;
 
               /* shortcut to character */
               chr = scr + y*width + x;
@@ -1448,7 +1448,7 @@ console_draw (GtkWidget *widget, GdkEventExpose *event)
               color = &chr->color;
               bg_color = &chr->bg_color;
 
-              /* Swap colors if char is selected */
+              /* swap colors if character inside ConsoleTextSelection area */
               if (gdk_rectangle_intersect(&rect, &selection, NULL))
                 {
                   ConsoleColor *tmp;
