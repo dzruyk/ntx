@@ -109,10 +109,10 @@ typedef enum
 } ConsoleCharAttr;
 
 typedef struct {
-  gdouble x1;
-  gdouble y1;
-  gdouble x2;
-  gdouble y2;
+  gdouble x1;                   /* start x coordinate in pixels */
+  gdouble y1;                   /* start y coordinate in pixels */
+  gdouble x2;                   /* stop x coordinate in pixels */
+  gdouble y2;                   /* stop y coordinate in pixels */
   GString *last_selected;
 } ConsoleTextSelection;
 
@@ -224,14 +224,15 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
   return TRUE;
 }
 
-#define SWAP_IF(cond, a, b) do {if (cond)       \
-                                  {             \
-                                    int tmp;    \
-                                    tmp = a;    \
-                                    a = b;      \
-                                    b = tmp;    \
-                                  }             \
-                                } while (0)
+#define SWAP_IF(cond, a, b) G_STMT_START { \
+  if (cond)         \
+    {               \
+      int tmp;      \
+      tmp = a;      \
+      a = b;        \
+      b = tmp;      \
+    }               \
+  } G_STMT_END
 
 /* FIXME: RENAME ME! */
 static void
