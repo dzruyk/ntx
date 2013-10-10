@@ -825,9 +825,9 @@ console_key_press_event2 (GtkWidget *widget, GdkEventKey *event, gpointer user_d
 }
 
 static void
-console_text_selected_event_cb (GtkWidget *widget, GString *s, gpointer user_data)
+console_text_selected_event_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
 {
-  g_debug ("text-selected event callback: get string %s", s->str);
+  g_debug ("text-selected event callback: get string %s", s);
 }
 
 static gboolean

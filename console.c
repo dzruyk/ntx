@@ -163,7 +163,7 @@ struct _ConsolePrivate {
   ConsoleColor bg_color;        /* character background color */
   ConsoleCharAttr attr;         /* character attributes */
 
-  ConsoleTextSelection text_selection; /* */
+  ConsoleTextSelection text_selection; /* text selection area structure */
 
   /* horizontal TAB position bitmap
    */
@@ -306,6 +306,7 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
   if (event->button == LEFT_MOUSE_BUTTON &&
       cs->x1 != -1 && cs->y1 != -1)
     {
+      GString *s;
       /* end of selection */
       
       g_debug ("button_release_event_cb (x2, y2) (%f, %f)", event->x, event->y);
@@ -314,11 +315,12 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
 
       get_selected_text (console);
 
-      g_signal_emit (console, console_signals[TEXT_SELECTED], 0, cs->last_selected);
+      s = cs->last_selected;
+      g_signal_emit (console, console_signals[TEXT_SELECTED], 0, s->str);
       gtk_widget_queue_draw (widget);
 
       clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
-      gtk_clipboard_set_text(clipboard, cs->last_selected->str, cs->last_selected->len);
+      gtk_clipboard_set_text(clipboard, cs->last_selected->str, s->len);
 
       cs->x1 = cs->x2 = -1;
       cs->y1 = cs->y2 = -1;
@@ -576,11 +578,10 @@ console_class_init (ConsoleClass *klass)
   console_signals[TEXT_SELECTED] =
     g_signal_new ("text-selected",
                   G_TYPE_FROM_CLASS (object_class),
-                  G_SIGNAL_RUN_LAST,
+                  G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (ConsoleClass, text_selected),
                   NULL, NULL,
-                  //_gtk_marshal_VOID__OBJECT,
-                  NULL,
+                  g_cclosure_marshal_VOID__STRING,
                   G_TYPE_NONE, 1,
                   G_TYPE_STRING);
   object_class->finalize = console_finalize;

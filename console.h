@@ -57,7 +57,7 @@ struct _ConsoleClass
 
   /*events */
   gboolean (* text_selected) (Console *console,
-                                    GString *str);
+                                    const gchar *str);
 };
 
 GType              console_get_type         ();
