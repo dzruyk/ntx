@@ -252,7 +252,7 @@ gui_mouse_disable ()
   g_signal_handler_block (G_OBJECT (console), console_button_release_id);
   g_signal_handler_block (G_OBJECT (console), console_motion_notify_id);
   g_signal_handler_block (G_OBJECT (console), console_scroll_id);
- 
+
   mouse_enabled = FALSE;
 }
 
@@ -294,7 +294,7 @@ gui_init (gint *argc, gchar ***argv)
 
   console_key_press_id =
     g_signal_connect (GTK_WIDGET (console), "key-press-event", G_CALLBACK (console_key_press_event_cb), NULL);
-  console_motion_notify_id = 
+  console_motion_notify_id =
     g_signal_connect (GTK_WIDGET (console), "motion-notify-event", G_CALLBACK (console_motion_notify_event_cb), NULL);
   console_button_press_id =
     g_signal_connect (GTK_WIDGET (console), "button-press-event", G_CALLBACK (console_button_event_cb), NULL);
