@@ -198,6 +198,12 @@ static void     invalidate_char_rect   (Console        *console,
 static void     invalidate_cursor_rect (Console        *console);
 static gboolean console_cursor_timer   (gpointer        user_data);
 
+bool
+try_get_pasted_text ()
+{
+
+}
+
 static gboolean
 console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
@@ -223,6 +229,8 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
   if (event->button == MIDDLE_MOUSE_BUTTON)
     {
       g_debug (" paste action");
+
+      return try_get_pasted_text ();
     }
 
   return TRUE;
@@ -239,7 +247,7 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
   } G_STMT_END
 
 /* FIXME: RENAME ME! */
-static GString *
+static GString*
 get_selected_text(Console *console)
 {
   ConsoleTextSelection *cs = &console->priv->text_selection;
@@ -487,13 +495,13 @@ console_get_type (void)
 /* Public functions available to user.
  */
 
-GtkWidget *
+GtkWidget*
 console_new()
 {
   return GTK_WIDGET (g_object_new (console_get_type (), NULL));
 }
 
-GtkWidget *
+GtkWidget*
 console_new_with_size (gint width, gint height)
 {
   return GTK_WIDGET (g_object_new (console_get_type (), "width", width, "height", height, NULL));
@@ -1187,7 +1195,7 @@ console_get_font_size (Console *console)
   return console->priv->font_size;
 }
 
-const gchar *
+const gchar*
 console_get_font_family (Console *console)
 {
   g_return_val_if_fail (console != NULL, NULL);
@@ -1196,7 +1204,7 @@ console_get_font_family (Console *console)
   return console->priv->font_family;
 }
 
-const gchar *
+const gchar*
 console_get_font_style (Console *console)
 {
   g_return_val_if_fail (console != NULL, NULL);
