@@ -113,7 +113,6 @@ typedef struct {
   gdouble y1;                   /* start y coordinate in pixels */
   gdouble x2;                   /* stop x coordinate in pixels */
   gdouble y2;                   /* stop y coordinate in pixels */
-  GString *last_selected;
 } ConsoleTextSelection;
 
 typedef struct _ConsoleChar
@@ -235,10 +234,11 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
   } G_STMT_END
 
 /* FIXME: RENAME ME! */
-static void
+static GString *
 get_selected_text(Console *console)
 {
   ConsoleTextSelection *cs = &console->priv->text_selection;
+  GString *res;
   gint x1, y1;
   gint x2, y2;
   gint char_width, char_height;
@@ -246,7 +246,9 @@ get_selected_text(Console *console)
 
   g_assert (cs->x1 != -1 && cs->y1 != -1 &&
             cs->x2 != -1 && cs->y2 != -1);
-  
+
+  res = g_string_new ("");
+
   char_width = console->priv->char_width;
   char_height = console->priv->char_height;
 
@@ -260,8 +262,6 @@ get_selected_text(Console *console)
 
   g_debug ("selected text coords (%d, %d) (%d, %d)", x1, y1, x2, y2);
 
-  g_string_truncate (cs->last_selected, 0);
-
   for (i = y1; i <= y2; i++)
     {
       for (j = x1; j <= x2; j++)
@@ -269,29 +269,17 @@ get_selected_text(Console *console)
           int coord;
 
           coord = i * console->priv->width + j;
-          g_string_append_unichar (cs->last_selected, console->priv->scr[coord].chr);
+          g_string_append_unichar (res, console->priv->scr[coord].chr);
 
         }
       if (i < y2)
         {
           /* if it's not last string */
-          g_string_append (cs->last_selected, "\n");
+          g_string_append (res, "\n");
         }
     }
-}
 
-static void
-update_selection(Console *console, gint x, gint y)
-{
-  ConsoleTextSelection *cs = &console->priv->text_selection;
-
-  g_assert (cs->x1 != -1 && cs->y1 != -1 &&
-            cs->x2 != -1 && cs->y2 != -1);
-
-  if (x >= 0)
-    cs->x2 = x;
-  if (y >= 0)
-    cs->y2 = y;
+  return res;
 }
 
 gboolean
@@ -311,19 +299,18 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
       
       g_debug ("button_release_event_cb (x2, y2) (%f, %f)", event->x, event->y);
 
-      update_selection (console, event->x, event->y);
+      s = get_selected_text (console);
 
-      get_selected_text (console);
-
-      s = cs->last_selected;
       g_signal_emit (console, console_signals[TEXT_SELECTED], 0, s->str);
       gtk_widget_queue_draw (widget);
 
-      clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
-      gtk_clipboard_set_text(clipboard, cs->last_selected->str, s->len);
+      clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
+      gtk_clipboard_set_text (clipboard, s->str, s->len);
 
       cs->x1 = cs->x2 = -1;
       cs->y1 = cs->y2 = -1;
+
+      g_string_free (s, TRUE);
     }
 
   return TRUE;
@@ -341,7 +328,11 @@ console_motion_notify_event_cb (GtkWidget *widget, GdkEventMotion *event, gpoint
     {
       g_debug ("motion_notify_event_cb (x2, y2) (%f, %f)", event->x, event->y);
 
-      update_selection (console, event->x, event->y);
+      if (event->x >= 0)
+        cs->x2 = event->x;
+      if (event->y >= 0)
+        cs->y2 = event->y;
+
       gtk_widget_queue_draw (widget);
     }
 
@@ -715,7 +706,6 @@ console_init (Console *console)
   priv->text_selection.y1 = -1;
   priv->text_selection.x2 = -1;
   priv->text_selection.y2 = -1;
-  priv->text_selection.last_selected = g_string_new("");
 
   /* set default TAB position each 8 characters */
   for (i = 0; i < TABMAP_SIZE; i++)
