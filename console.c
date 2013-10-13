@@ -235,6 +235,8 @@ try_get_pasted_text (Console *console)
       p = g_utf8_next_char (p);
     }
 
+  g_signal_emit (console, console_signals[TEXT_PASTED], 0, s);
+
   g_free (s);
 
   return TRUE;
