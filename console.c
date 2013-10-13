@@ -54,6 +54,7 @@ typedef enum
 
 enum {
   TEXT_SELECTED,
+  TEXT_PASTED,
   LAST_SIGNAL,
 };
 
@@ -213,11 +214,15 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
       g_assert (cs->x1 == -1 && cs->y1 == -1);
       g_assert (cs->x2 == -1 && cs->y2 == -1);
 
-      g_debug ("button_press_event_cb (x1, y1) (%f, %f)", event->x, event->y);
+      g_debug ("start selection at (x1, y1) (%f, %f)", event->x, event->y);
 
       cs->x1 = cs->x2 = event->x;
       cs->y1 = cs->y2 = event->y;
       gtk_widget_queue_draw (widget);
+    }
+  if (event->button == MIDDLE_MOUSE_BUTTON)
+    {
+      g_debug (" paste action");
     }
 
   return TRUE;
@@ -259,6 +264,8 @@ get_selected_text(Console *console)
 
   SWAP_IF (x1 > x2, x1, x2);
   SWAP_IF (y1 > y2, y1, y2);
+  x2 = MIN (x2, console->priv->width);
+  y2 = MIN (y2, console->priv->height);
 
   g_debug ("selected text coords (%d, %d) (%d, %d)", x1, y1, x2, y2);
 
@@ -575,6 +582,16 @@ console_class_init (ConsoleClass *klass)
                   g_cclosure_marshal_VOID__STRING,
                   G_TYPE_NONE, 1,
                   G_TYPE_STRING);
+  console_signals[TEXT_PASTED] =
+    g_signal_new ("text-pasted",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (ConsoleClass, text_pasted),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__STRING,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
+ 
   object_class->finalize = console_finalize;
 }
 
@@ -1373,7 +1390,6 @@ console_draw (GtkWidget *widget, GdkEventExpose *event)
   g_return_if_fail (widget != NULL);
   g_return_if_fail (IS_CONSOLE (widget));
 
-  g_debug ("console_draw");
   priv = CONSOLE (widget)->priv;
 
   /* Obtain cairo context for the widget window and clip it to redraw area. */
@@ -1408,8 +1424,6 @@ console_draw (GtkWidget *widget, GdkEventExpose *event)
       selection.y = MIN(cs->y1, cs->y2);
       selection.width = ABS(cs->x2 - cs->x1);
       selection.height = ABS(cs->y2 - cs->y1);
-      g_debug ("selection x,y (%d, %d) width, height (%d, %d)", selection.x,
-               selection.y, selection.width, selection.height);
 
       for (y = 0; y < height; y++)
         {

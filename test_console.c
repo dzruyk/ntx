@@ -830,6 +830,12 @@ console_text_selected_event_cb (GtkWidget *widget, const gchar *s, gpointer user
   g_debug ("text-selected event callback: get string %s", s);
 }
 
+static void
+console_text_pasted_event_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
+{
+  g_debug ("text-pasted event callback: get string %s", s);
+}
+
 static gboolean
 console_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
 {
@@ -955,7 +961,8 @@ main (int argc, char *argv[])
   main_console = console;
 
   console_set_cursor_timer (CONSOLE (console), CONSOLE_BLINK_MEDIUM);
-  g_signal_connect (console, "text-selected", G_CALLBACK(console_text_selected_event_cb), console);
+  g_signal_connect (console, "text-selected", G_CALLBACK (console_text_selected_event_cb), console);
+  g_signal_connect (console, "text-pasted", G_CALLBACK (console_text_pasted_event_cb), console);
 
 
   g_signal_connect (GTK_WIDGET (window), "key-press-event", G_CALLBACK (console_key_press_event), console);

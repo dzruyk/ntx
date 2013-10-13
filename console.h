@@ -56,7 +56,9 @@ struct _ConsoleClass
   GtkWidgetClass parent_class;
 
   /*events */
-  gboolean (* text_selected) (Console *console,
+  void (* text_selected) (Console *console,
+                                    const gchar *str);
+  void (* text_pasted) (Console *console,
                                     const gchar *str);
 };
 
