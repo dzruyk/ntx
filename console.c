@@ -198,10 +198,34 @@ static void     invalidate_char_rect   (Console        *console,
 static void     invalidate_cursor_rect (Console        *console);
 static gboolean console_cursor_timer   (gpointer        user_data);
 
-bool
-try_get_pasted_text ()
+gboolean
+try_get_pasted_text (Console *console)
 {
+  GtkClipboard *clipboard;
+  gchar *s, *p;
+  gint i, len;
 
+  clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
+
+  s = gtk_clipboard_wait_for_text (clipboard);
+  if (s == NULL)
+    return FALSE;
+
+  g_debug ("get \"%s\" from clipboard", s);
+
+  len = g_utf8_strlen (s, -1);
+  p = s;
+  for (i = 0; i < len; i++)
+    {
+      gunichar ch;
+      ch = g_utf8_get_char (p);
+      console_put_char (console, ch);
+      p = g_utf8_next_char (p);
+    }
+
+  g_free (s);
+
+  return TRUE;
 }
 
 static gboolean
@@ -230,7 +254,7 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
     {
       g_debug (" paste action");
 
-      return try_get_pasted_text ();
+      return try_get_pasted_text (console);
     }
 
   return TRUE;
@@ -1871,7 +1895,7 @@ console_put_char (Console *console, gunichar uc)
     case ASCII_CR: /* carriage return */
       /* character at previous cursor position must be redrawn */
       invalidate_cursor_rect (console);
-      /* move cursor to the beginning of the current line */ 
+      /* move cursor to the beginning of the current line */
       cursor_x = 0;
       invalidate_char_rect (console, cursor_x, cursor_y);
       priv->cursor_x = cursor_x;
