@@ -203,7 +203,7 @@ try_get_pasted_text (Console *console)
 {
   GtkClipboard *clipboard;
   gchar *s, *p;
-  gint i, len;
+  gint len;
 
   clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
 
@@ -215,11 +215,23 @@ try_get_pasted_text (Console *console)
 
   len = g_utf8_strlen (s, -1);
   p = s;
-  for (i = 0; i < len; i++)
+
+  while (len-- > 0)
     {
       gunichar ch;
       ch = g_utf8_get_char (p);
-      console_put_char (console, ch);
+      switch (ch)
+        {
+          case '\n':
+          case '\r':
+            console_put_char (console, '\r');
+            console_put_char (console, '\n');
+            break;
+          default:
+            console_put_char (console, ch);
+            break;
+        }
+
       p = g_utf8_next_char (p);
     }
 
