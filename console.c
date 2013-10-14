@@ -349,7 +349,7 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
     {
       GString *s;
       /* end of selection */
-      
+
       g_debug ("button_release_event_cb (x2, y2) (%f, %f)", event->x, event->y);
 
       s = get_selected_text (console);
@@ -407,7 +407,7 @@ console_face_requester (FTC_FaceID id, FT_Library lib, FT_Pointer data, FT_Face 
   g_assert (aface != NULL);
 
   *aface = NULL;
-  
+
   /* Face ID is a ConsolePrivate structure passed to cache lookup routines as
    * a parameter.
    */
@@ -492,7 +492,7 @@ console_font_cache_deinit (ConsolePrivate *priv)
 
   if (priv->ftlib != NULL)
     FT_Done_FreeType (priv->ftlib);
-  
+
   priv->manager = NULL;
   priv->ftlib = NULL;
 
@@ -637,7 +637,7 @@ console_class_init (ConsoleClass *klass)
                   g_cclosure_marshal_VOID__STRING,
                   G_TYPE_NONE, 1,
                   G_TYPE_STRING);
- 
+
   object_class->finalize = console_finalize;
 }
 
@@ -698,7 +698,7 @@ resize_screen (Console *console, gint width, gint height)
           else
             {
               ConsoleChar *chr;
-              
+
               chr = scr + i*width + j;
               chr->chr = ' ';
               chr->color = priv->color;
@@ -849,11 +849,11 @@ console_size_request (GtkWidget *widget, GtkRequisition *requisition)
     char_width = face->bbox.xMax * scale_x + 0.5;
   else
     char_width = (face->bbox.xMax + face->bbox.xMin) * scale_x + 0.5;
-  
+
   char_height = (face->bbox.yMax - face->bbox.yMin) * scale_y + 0.5;
   if (char_height < 0)
     char_height = face->bbox.yMax * scale_y + 0.5;
-  
+
   baseline = face->bbox.yMax * scale_y;
 
   g_assert (baseline >= 0);
@@ -871,7 +871,7 @@ console_size_request (GtkWidget *widget, GtkRequisition *requisition)
 
   /* Do the canonical terminal window geometry hints to resize properly. */
   toplevel = gtk_widget_get_toplevel (widget);
-  
+
   if (GTK_WIDGET_TOPLEVEL (toplevel))
     {
       hints.width_inc = priv->char_width;
@@ -967,7 +967,7 @@ console_realize (GtkWidget *widget)
   gdk_window_set_background (widget->window, &color);
 
  // gdk_window_set_back_pixmap (widget->window, NULL, TRUE);
-  
+
   widget->style = gtk_style_attach (widget->style, widget->window);
   //gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
 }
@@ -1170,7 +1170,7 @@ console_set_cursor_timer (Console *console, ConsoleBlinkTimer timer)
 
   if (console->priv->cursor_timer_id > 0)
     g_source_remove (console->priv->cursor_timer_id);
-  
+
   console->priv->cursor_timer_id = 0;
   timeout = 0;
 
@@ -1268,23 +1268,23 @@ console_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     case PROP_WIDTH:
       console_set_width (CONSOLE (object), g_value_get_int (value));
       break;
-      
+
     case PROP_HEIGHT:
       console_set_height (CONSOLE (object), g_value_get_int (value));
       break;
-      
+
     case PROP_FONT_SIZE:
       console_set_font_size (CONSOLE (object), g_value_get_int (value));
       break;
-      
+
     case PROP_FONT_STYLE:
       console_set_font_style (CONSOLE (object), g_value_get_string (value));
       break;
-      
+
     case PROP_FONT_FAMILY:
       console_set_font_family (CONSOLE (object), g_value_get_string (value));
       break;
-      
+
     case PROP_CURSOR_SHAPE:
       console_set_cursor_shape (CONSOLE (object), g_value_get_enum (value));
       break;
@@ -1292,7 +1292,7 @@ console_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     case PROP_CURSOR_TIMER:
       console_set_cursor_timer (CONSOLE (object), g_value_get_enum (value));
       break;
-      
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1307,27 +1307,27 @@ console_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec 
     case PROP_WIDTH:
       g_value_set_int (value, console_get_width (CONSOLE (object)));
       break;
-      
+
     case PROP_HEIGHT:
       g_value_set_int (value, console_get_height (CONSOLE (object)));
       break;
-      
+
     case PROP_FONT_SIZE:
       g_value_set_int (value, console_get_font_size (CONSOLE (object)));
       break;
-      
+
     case PROP_FONT_STYLE:
       g_value_set_string (value, console_get_font_style (CONSOLE (object)));
       break;
-      
+
     case PROP_FONT_FAMILY:
       g_value_set_string (value, console_get_font_family (CONSOLE (object)));
       break;
-      
+
     case PROP_CURSOR_SHAPE:
       g_value_set_int (value, console_get_cursor_shape (CONSOLE (object)));
       break;
-      
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1367,39 +1367,39 @@ get_cursor_rectangle (ConsolePrivate *priv, double xc, double yc, GdkRectangle *
       rect->height = priv->char_height;
       rect->y = yc;
       break;
-    
+
     case CONSOLE_CURSOR_UNDERSCORE:
       rect->height = 3.0;
       rect->y = yc + priv->baseline - 1.0;
       break;
-    
+
     case CONSOLE_CURSOR_LOWER_THIRD:
       rect->height = priv->char_height / 3.0;
       rect->y = yc + priv->char_height * (2.0 / 3.0);
       break;
-    
+
     case CONSOLE_CURSOR_LOWER_HALF:
       rect->height = priv->char_height * 0.5;
       rect->y = yc + priv->char_height * 0.5;
       break;
-    
+
     case CONSOLE_CURSOR_TWO_THIRDS:
       rect->height = priv->char_height * (2.0 / 3.0);
       rect->y = yc + priv->char_height / 3.0;
       break;
-    
+
     case CONSOLE_CURSOR_VERT_THIRD:
       rect->height = priv->char_height;
       rect->width = priv->char_width / 3.0;
       rect->y = yc;
       break;
-    
+
     case CONSOLE_CURSOR_VERT_HALF:
       rect->height = priv->char_height;
       rect->width = priv->char_width * 0.5;
       rect->y = yc;
       break;
-    
+
     case CONSOLE_CURSOR_INVISIBLE:
       rect->x = 0;
       rect->y = 0;
@@ -1556,7 +1556,7 @@ console_draw (GtkWidget *widget, GdkEventExpose *event)
                           continue;
                         }
                     }
- 
+
                   scaler.face_id = priv;
                   scaler.pixel = FALSE;
                   scaler.height = priv->font_size << 6;

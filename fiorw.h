@@ -34,7 +34,7 @@ typedef struct _FIOCallbacks
 
   /* Receives data read by companion process. */
   void (*read_data)     (guchar *buffer, gsize len, gpointer user_data);
-  
+
   /* Invoked when write buffer is ready to accept more data. */
   void (*kick_writer)   (gpointer user_data);
 

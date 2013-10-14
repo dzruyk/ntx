@@ -70,7 +70,7 @@ font_selection_dialog (GtkWidget *widget, gpointer user_data)
     default:
       g_warn_if_reached ();
     }
-  
+
   gtk_widget_destroy (GTK_WIDGET (dialog));
 }
 
@@ -211,7 +211,7 @@ console_color_change_dialog (GtkWidget *widget, gpointer user_data)
       console_set_foreground_color (console, &fg_color);
       console_set_background_color (console, &bg_color);
       break;
-    
+
     default:
       g_warn_if_reached ();
     }
@@ -625,7 +625,7 @@ clear_command_radio_button_toggled_cb (GtkWidget *widget, gpointer user_data)
   gboolean clear_display;
 
   g_assert (user_data != NULL);
-   
+
   info = user_data;
 
   if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
@@ -974,7 +974,7 @@ main (int argc, char *argv[])
   status_bar = gtk_statusbar_new ();
 
   menu_bar = gtk_menu_bar_new ();
-  
+
   /* font menu items */
 
   menu_item = gtk_menu_item_new_with_label ("Font");
@@ -1019,7 +1019,7 @@ main (int argc, char *argv[])
 
       gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
     }
- 
+
   menu_item = gtk_menu_item_new_with_label ("Blink period");
   gtk_menu_shell_append (GTK_MENU_SHELL (cursor_menu), menu_item);
 
@@ -1027,7 +1027,7 @@ main (int argc, char *argv[])
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), menu);
 
   group = NULL;
-     
+
   for (i = 0; i < G_N_ELEMENTS (blink_list); i++)
     {
       GtkWidget *item;

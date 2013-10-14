@@ -333,7 +333,7 @@ fio_write_event (GIOChannel *channel, GIOCondition condition, gpointer user_data
       if (fiocb.kick_writer != NULL)
 	(*fiocb.kick_writer) (fiocb.user_data);
     }
- 
+
   /* disable write event if buffer is empty */
   if (writebuf_tail == writebuf_head)
     {
@@ -381,7 +381,7 @@ fio_write (const void *buf, gsize len)
 
   if (writebuf_head == writebuf_tail)
     {
-     
+
       err = NULL;
       status = g_io_channel_write_chars (wchannel, buf, len, (gsize *)&written, &err);
       g_assert ((err != NULL && status != G_IO_STATUS_NORMAL) || (err == NULL && status == G_IO_STATUS_NORMAL));
@@ -398,7 +398,7 @@ fio_write (const void *buf, gsize len)
 
 	  /* calculate data left unwritten */
 	  left = len - written;
-     
+
 	  /* calculate minimum between available buffer space and unwritten data */
 	  n = MIN (sizeof (writebuf), left);
 
@@ -445,7 +445,7 @@ fio_write (const void *buf, gsize len)
       /* try to align write buffer and free some space */
       if (sizeof (writebuf) - writebuf_head < len)
 	writebuf_align ();
- 
+
       n = MIN (sizeof (writebuf)-writebuf_head, len);
 
       if (n > 0)

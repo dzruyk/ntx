@@ -178,7 +178,7 @@ nvt_read (GIOChannel *channel, GIOCondition cond, gpointer user_data)
   switch (cond)
     {
     case G_IO_IN:
-     
+
       if (preplen > 0)
 	{
 	  g_assert (preplen <= sizeof (buf));
@@ -519,7 +519,7 @@ nvt_real_disconnect ()
       g_object_unref (connection);
       connection = NULL;
     }
-  
+
   if (channel != NULL)
     {
       g_io_channel_unref (channel);
@@ -532,7 +532,7 @@ nvt_finalize ()
 {
 
   nvt_real_disconnect ();
-  
+
   if (client != NULL)
     {
       g_object_unref (client);

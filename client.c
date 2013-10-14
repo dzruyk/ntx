@@ -166,7 +166,7 @@ client_write_console (guchar *buf, guint len)
 
   p = (gchar *)buf;
   end = p + len;
-   
+
   while (*p != '\0' && p < end)
   {
     gunichar uc;
@@ -316,7 +316,7 @@ client_get_console_size ()
 
   width = console_get_width (CONSOLE (console));
   height = console_get_height (CONSOLE (console));
-  
+
   snprintf (buf, sizeof (buf), "%d,%d", width, height);
   len = strlen (buf);
   buf[len] = ESC;

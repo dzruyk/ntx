@@ -145,7 +145,7 @@ fc_get_matched (const gchar  *family,
 
   if (monospaced)
     FcPatternAddBool (pattern, FC_SCALABLE, FcTrue);
- 
+
   if (scalable)
     FcPatternAddInteger (pattern, FC_SPACING, FC_MONO);
 
@@ -158,7 +158,7 @@ fc_get_matched (const gchar  *family,
       else
         FcPatternAddString (pattern, FC_FAMILY, (const FcChar8 *)DEFAULT_FAMILY);
     }
- 
+
   if (style != NULL)
     FcPatternAddString (pattern, FC_STYLE, (const FcChar8 *)style);
   else
@@ -175,17 +175,17 @@ fc_get_matched (const gchar  *family,
   match = FcFontMatch (NULL, pattern, &res);
 
   res = FcPatternGetInteger (match, FC_WEIGHT, 0, &weight);
-  
+
   if (res != FcResultMatch)
     weight = FC_WEIGHT_NORMAL;
-    
+
   res = FcPatternGetInteger (match, FC_SLANT, 0, &slant);
-  
+
   if (res != FcResultMatch)
    slant = FC_SLANT_ROMAN;
 
   res = FcPatternGetInteger (match, FC_WIDTH, 0, &width);
-  
+
   if (res != FcResultMatch)
     width = FC_WIDTH_NORMAL;
 
@@ -244,7 +244,7 @@ fc_list_faces (gboolean        monospaced,
       gint weight, width, slant;
       gchar *family, *style;
       FcResult res;
- 
+
       if (done)
 	break;
 
@@ -252,7 +252,7 @@ fc_list_faces (gboolean        monospaced,
       g_assert (res == FcResultMatch);
 
       res = FcPatternGetInteger (font_list->fonts[i], FC_WEIGHT, 0, &weight);
-      
+
       if (res != FcResultMatch)
 	weight = FC_WEIGHT_NORMAL;
 
@@ -321,7 +321,7 @@ fc_get_font_file (const gchar  *family,
   /* Set default pattern for the match. */  
   FcConfigSubstitute (NULL, pat, FcMatchPattern);
   FcDefaultSubstitute (pat);
- 
+
   /* Find the best match for the pattern. */
   match = FcFontMatch (NULL, pat, &res);
 
@@ -331,7 +331,7 @@ fc_get_font_file (const gchar  *family,
       if (res != FcResultMatch)
 	*face_index = 0;
     }
- 
+
   if (file != NULL)
     {
       gchar *tmp;

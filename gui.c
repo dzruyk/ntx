@@ -113,11 +113,11 @@ console_button_event_cb (GtkWidget *widget, GdkEventButton *event, gpointer user
       else if (event->button == 3)
 	len = snprintf (buf, MAXMSGBUF, "-11#R#%u#%u", (guint)x+1, (guint)y+1);
       break;
-   
+
     case GDK_2BUTTON_PRESS:
       len = snprintf (buf, MAXMSGBUF, "-12#%u#%u", (guint)x+1, (guint)y+1);
       break;
-    
+
     case GDK_BUTTON_RELEASE:
       len = snprintf (buf, MAXMSGBUF, "-11#0#%u#%u", (guint)x+1, (guint)y+1);
       break;
@@ -312,7 +312,7 @@ gui_init (gint *argc, gchar ***argv)
   status_bar = gtk_statusbar_new ();
 
 //  menu_bar = gtk_menu_bar_new ();
- 
+
 //  gtk_box_pack_start (GTK_BOX (vbox), menu_bar, FALSE, FALSE, 0);
 
   gtk_box_pack_start (GTK_BOX (vbox), console, TRUE, TRUE, 0);

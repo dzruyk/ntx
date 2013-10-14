@@ -131,7 +131,7 @@ chn_pty_read_event (GIOChannel *channel, GIOCondition condition, gpointer user_d
 	    (*channel_callbacks.error) (err, channel_callbacks.user_data);
 	  chn_pty_disconnect ();
 	  break;
- 
+
 	case G_IO_STATUS_AGAIN:
 	  break;
 

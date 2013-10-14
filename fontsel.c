@@ -108,7 +108,7 @@ console_font_selection_set_family (ConsoleFontSelection *fontsel,
 
   if (fontsel->family != NULL)
     g_free (fontsel->family);
-  
+
   fontsel->family = g_strdup (family);
 
   fc_get_matched (fontsel->family, fontsel->style, TRUE, TRUE, &canonical_family, NULL);
@@ -196,11 +196,11 @@ console_font_selection_get_property (GObject	   *object,
     case PROP_FONT:
       g_value_set_string (value, console_font_selection_get_family (fontsel)); 
       break;
- 
+
     case PROP_STYLE:
       g_value_set_string (value, console_font_selection_get_style (fontsel));
       break;
- 
+
     case PROP_SIZE:
       g_value_set_int (value, console_font_selection_get_size (fontsel)); 
       break;
@@ -214,7 +214,7 @@ console_font_selection_get_property (GObject	   *object,
 gint
 console_font_selection_get_size (ConsoleFontSelection *fontsel)
 {
- 
+
   g_return_val_if_fail (fontsel != NULL, -1);
   g_return_val_if_fail (CONSOLE_IS_FONT_SELECTION (fontsel), -1);
 
@@ -273,7 +273,7 @@ style_list_set_cursor (ConsoleFontSelection *fontsel, const gchar *style)
   GtkTreePath *path;
   GtkTreeModel *model;
   GtkTreeIter iter;
-  
+
   model = gtk_tree_view_get_model (GTK_TREE_VIEW (fontsel->style_list));
 
   g_assert (model != NULL);
@@ -466,7 +466,7 @@ size_entry_focus_out_cb (GtkWidget *widget, GdkEventFocus *event, gpointer user_
   g_assert (CONSOLE_IS_FONT_SELECTION (user_data));
 
   fontsel = user_data;
-  
+
   size_entry_apply (fontsel);
 
   return FALSE;
@@ -479,21 +479,21 @@ size_list_cursor_changed_cb (GtkTreeView *tree, gpointer user_data)
   GtkTreeSelection *selection;
   GtkTreeModel *model;
   GtkTreeIter iter;
- 
+
   fontsel = CONSOLE_FONT_SELECTION (user_data);
   selection = gtk_tree_view_get_selection (tree);
   model = gtk_tree_view_get_model (tree);
- 
+
   if (gtk_tree_selection_get_selected (selection, &model, &iter))
     {
       gchar buf[64];
       gint size;
-      
+
       gtk_tree_model_get (model, &iter, 0, &size, -1);
- 
+
       g_snprintf (buf, sizeof (buf), "%u", size);
       gtk_entry_set_text (GTK_ENTRY (fontsel->size_entry), buf);
-      
+
       fontsel->size = size;
     }
 }
@@ -547,7 +547,7 @@ family_list_cursor_changed_cb (GtkTreeView *tree, gpointer user_data)
    */
   model = gtk_tree_view_get_model (tree);
   selection = gtk_tree_view_get_selection (tree);
-  
+
   if (gtk_tree_selection_get_selected (selection, &model, &iter))
     {
       gtk_tree_model_get (model, &iter, FONTLIST_FAMILY_COLUMN, &family_from_list, FONTLIST_STYLES_COLUMN, &styles, -1);
@@ -560,14 +560,14 @@ family_list_cursor_changed_cb (GtkTreeView *tree, gpointer user_data)
        */
       model = gtk_tree_view_get_model (GTK_TREE_VIEW (fontsel->style_list));
       gtk_list_store_clear (GTK_LIST_STORE (model));
-      
+
       for (item = styles; item != NULL; item = item->next)
 	{
 	  GtkTreeIter iter;
 	  gtk_list_store_append (GTK_LIST_STORE (model), &iter);
 	  gtk_list_store_set (GTK_LIST_STORE (model), &iter, STYLELIST_STYLE_COLUMN, item->data, -1);
 	}
- 
+
       /* Set cursor in the style list view to the default style.
        */
       fc_get_matched (fontsel->family, NULL, TRUE, TRUE, NULL, &default_style);
@@ -644,7 +644,7 @@ populate_font_list (GtkListStore *model)
 {
   GHashTable *table;
   gint i;
-  
+
   table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   /* Get all the faces and styles in the hash table. */
@@ -726,7 +726,7 @@ console_font_selection_init (ConsoleFontSelection *fontsel)
   gtk_table_attach_defaults (GTK_TABLE (table), scrolled_win, 0, 1, 1, 2);
 
   model = gtk_list_store_new (STYLELIST_N_COLUMNS, G_TYPE_STRING);
-  
+
   gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (model), STYLELIST_STYLE_COLUMN, GTK_SORT_ASCENDING);
 
   fontsel->style_list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
@@ -782,7 +782,7 @@ console_font_selection_init (ConsoleFontSelection *fontsel)
 		    "map", G_CALLBACK (family_list_map_cb), fontsel); 
   g_signal_connect (G_OBJECT (fontsel->family_list),
 		    "row-activated", G_CALLBACK (list_row_activated_cb), fontsel);
- 
+
   g_signal_connect (G_OBJECT (fontsel->size_list),
 		    "cursor-changed", G_CALLBACK (size_list_cursor_changed_cb), fontsel);
   g_signal_connect (G_OBJECT (fontsel->size_list),
@@ -861,7 +861,7 @@ console_font_selection_dialog_init (ConsoleFontSelectionDialog *dialog)
   GtkVBox *vbox;
 
   parent = GTK_DIALOG (dialog);
- 
+
   gtk_dialog_set_has_separator (parent, FALSE);
 
   vbox = GTK_VBOX (parent->vbox);
@@ -942,7 +942,7 @@ console_font_selection_dialog_get_size (ConsoleFontSelectionDialog *dialog)
 const gchar *
 console_font_selection_dialog_get_family (ConsoleFontSelectionDialog *dialog)
 {
- 
+
   g_return_val_if_fail (dialog != NULL, NULL);
   g_return_val_if_fail (CONSOLE_IS_FONT_SELECTION_DIALOG (dialog), NULL);
 
