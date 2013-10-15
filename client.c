@@ -79,26 +79,26 @@ enum
 #define DEBUG(fmt, arg...) do { } while (0)
 #endif
 
-#define NARGMAX                 128	/* maximum number of arguments passed to child process */
-#define MAXPARAM                8192	/* parameters buffer size */
+#define NARGMAX                 128           /* maximum number of arguments passed to child process */
+#define MAXPARAM                8192          /* parameters buffer size */
 
 #define VERSION "3.13"
 
-#define DEFAULT_TMP_DIR         "/tmp"		/* default temporary directory */
+#define DEFAULT_TMP_DIR         "/tmp"        /* default temporary directory */
 
-#define COMMAND_WRAPPER_BIN     "cmdwrapper"	/* name of a binary to wrap C_OS_COMMAND */
+#define COMMAND_WRAPPER_BIN     "cmdwrapper"  /* name of a binary to wrap C_OS_COMMAND */
 
-#define FG_COLOR(c)	(0x0f & (c))
-#define BG_COLOR(c)	((0xf0 & (c)) >> 4)
+#define FG_COLOR(c)    (0x0f & (c))
+#define BG_COLOR(c)    ((0xf0 & (c)) >> 4)
 
 static iconv_t  cd;
 static guchar   param[MAXPARAM];
 static guint    paramlen = 0;
 static gint     state = S_0;
-static gint     cmd = -1;		/* command number */
-static gboolean ios_started = 0;	/* TRUE if C_START_IOS was received */
-static gboolean file_opened = FALSE;	/* TRUE indicates C_FILE_OPEN opened a file with fio_open_xxx() */
-static guint    child_event_id = 0;	/* event source id of external program started by C_OS_COMMAND */
+static gint     cmd = -1;                     /* command number */
+static gboolean ios_started = 0;              /* TRUE if C_START_IOS was received */
+static gboolean file_opened = FALSE;          /* TRUE indicates C_FILE_OPEN opened a file with fio_open_xxx() */
+static guint    child_event_id = 0;           /* event source id of external program started by C_OS_COMMAND */
 
 static void   send_response           (gchar c);
 static gchar* get_temporary_directory (gchar *buf, gsize bufsz);
@@ -128,7 +128,7 @@ client_init ()
   if (cd == (iconv_t) -1)
     {
       if (errno == EINVAL)
-	g_error ("iconv_open can't convert %s to %s", from, to);
+        g_error ("iconv_open can't convert %s to %s", from, to);
       else
         g_error ("iconv_open failed: %s", strerror(errno));
     }
@@ -172,10 +172,10 @@ client_write_console (guchar *buf, guint len)
     gunichar uc;
     uc = g_utf8_get_char (p);
     if (uc > 0
-	&& (g_unichar_isprint (uc) || g_unichar_isspace (uc)
-	    || uc == DEL || uc == BS || uc == BEL))
+        && (g_unichar_isprint (uc) || g_unichar_isspace (uc)
+            || uc == DEL || uc == BS || uc == BEL))
       {
-	console_put_char (CONSOLE (console), uc);
+        console_put_char (CONSOLE (console), uc);
       }
     p = g_utf8_next_char (p);
   }
@@ -442,27 +442,27 @@ get_temporary_directory (gchar *buf, gsize bufsz)
       tmp = NULL;
 
       do
-	{
-	  errno = 0;
-	  pw = getpwuid (getuid());
-	}
+        {
+          errno = 0;
+          pw = getpwuid (getuid());
+        }
       while (pw == NULL && errno == EINTR);
 
       for (p = list; *p != NULL; p++)
-	{
-	  snprintf (dirname, sizeof (dirname), "/home/%s/%s", pw->pw_name, *p);
-	  if (stat (dirname, &st) != -1 && S_ISDIR (st.st_mode))
-	    {
-	      tmp = dirname;
-	      break;
-	    }
-	}
+        {
+          snprintf (dirname, sizeof (dirname), "/home/%s/%s", pw->pw_name, *p);
+          if (stat (dirname, &st) != -1 && S_ISDIR (st.st_mode))
+            {
+              tmp = dirname;
+              break;
+            }
+        }
 
       if (tmp == NULL)
-	{
-	  g_strlcpy(dirname, DEFAULT_TMP_DIR, sizeof (dirname));
-	  tmp = dirname;
-	}
+        {
+          g_strlcpy(dirname, DEFAULT_TMP_DIR, sizeof (dirname));
+          tmp = dirname;
+        }
     }
 
   g_strlcpy (buf, tmp, bufsz);
@@ -580,9 +580,9 @@ client_file_exists (const gchar *filename)
   else
     {
       if (errno == ENOTDIR || errno == ENOENT || errno == ENAMETOOLONG || errno == ELOOP)
-	c = '1';
+        c = '1';
       else
-	c = '0';
+        c = '0';
     }
 
   send_response (c);
@@ -656,18 +656,18 @@ client_os_command (const gchar *cmd)
       end = buf + strlen (buf);
 
       while (c < end)
-	{
-	  while (g_ascii_isspace (*c))
-	    c++;
+        {
+          while (g_ascii_isspace (*c))
+            c++;
 
-	  if (*c != '\0' && argc < NARGMAX)
-	    argv[argc++] = c;
+          if (*c != '\0' && argc < NARGMAX)
+            argv[argc++] = c;
 
-	  while (*c != '\0' && !g_ascii_isspace (*c))
-	    c++;
+          while (*c != '\0' && !g_ascii_isspace (*c))
+            c++;
 
-	  *c++ = '\0';
-	}
+          *c++ = '\0';
+        }
 
       g_assert (argc < NARGMAX);
 
@@ -678,21 +678,21 @@ client_os_command (const gchar *cmd)
 
       err = NULL;
       if (!g_spawn_async (NULL, argv, NULL, flags, NULL, NULL, &pid, &err))
-	{
-	  g_assert (err != NULL);
-	  g_warning ("client_os_command: can't spawn a child: %s", err->message);
-	  g_error_free (err);
-	  send_response ('0');
-	}
+        {
+          g_assert (err != NULL);
+          g_warning ("client_os_command: can't spawn a child: %s", err->message);
+          g_error_free (err);
+          send_response ('0');
+        }
       else
-	{
-	  g_assert (err == NULL);
-	  g_debug ("client_os_command: process pid %d spawned", pid);
-	  g_assert (child_event_id == 0);
-	  child_event_id = g_child_watch_add (pid, child_watch, NULL);
-	  g_assert (child_event_id > 0);
-	  send_response ('1');
-	}
+        {
+          g_assert (err == NULL);
+          g_debug ("client_os_command: process pid %d spawned", pid);
+          g_assert (child_event_id == 0);
+          child_event_id = g_child_watch_add (pid, child_watch, NULL);
+          g_assert (child_event_id > 0);
+          send_response ('1');
+        }
     }
 }
 
@@ -715,12 +715,12 @@ client_read_data_cb (guchar *buffer, gsize len, gpointer user_data)
   if (file_opened)
     {
       if (len > 2 && buffer[len-1] == LF && buffer[len-2] == ESC)
-	{
-	  /* send response with LF byte at the end stripped */
-	  chn_write (buffer, len-1);
-	}
+        {
+          /* send response with LF byte at the end stripped */
+          chn_write (buffer, len-1);
+        }
       else
-	g_warning ("client_read_data_cb: no <LF><ESC> terminator");
+        g_warning ("client_read_data_cb: no <LF><ESC> terminator");
     }
   else
     g_warning ("client_read_data_cb: no file opened");
@@ -763,409 +763,409 @@ client_do_input (guchar *buf, gsize len)
       c = buf[i];
 
       switch (state)
-	{
-	case S_0:
-	  if (c == 0)
-	    {
-	      /* Next byte will be a command number. */
-	      state = S_CMD;
+        {
+        case S_0:
+          if (c == 0)
+            {
+              /* Next byte will be a command number. */
+              state = S_CMD;
 
-	      /* Flush non-command buffer contents to console. */
-	      while (inleft > 0)
-		{
-		  outleft = sizeof (buffer);
-		  outptr = (gchar *)buffer;
+              /* Flush non-command buffer contents to console. */
+              while (inleft > 0)
+                {
+                  outleft = sizeof (buffer);
+                  outptr = (gchar *)buffer;
 
-		  rc = iconv (cd, &inptr, &inleft, &outptr, &outleft);
+                  rc = iconv (cd, &inptr, &inleft, &outptr, &outleft);
 
-		  if (rc == (size_t) -1)
-		    {
-		      if (errno == EINVAL)
-			break;
-		      else
-			{
-			  g_warning ("iconv: can't convert sequence: %s", strerror (errno));
-			  break;
-			}
-		    }
-		  else
-		    client_write_console (buffer, sizeof (buffer)-outleft);
-		}
-	    }
-	  else
-	    {
-	      buf[n++] = c;
-	      inleft++;
-	    }
-	  break;
+                  if (rc == (size_t) -1)
+                    {
+                      if (errno == EINVAL)
+                        break;
+                      else
+                        {
+                          g_warning ("iconv: can't convert sequence: %s", strerror (errno));
+                          break;
+                        }
+                    }
+                  else
+                    client_write_console (buffer, sizeof (buffer)-outleft);
+                }
+            }
+          else
+            {
+              buf[n++] = c;
+              inleft++;
+            }
+          break;
 
-	case S_CMD:
-	  cmd = c;
-	  switch (cmd)
-	    {
-	    case C_START_IOS:
-	      DEBUG ("starting IOS...");
-	      ios_started = TRUE;
-	      state = S_0;
-	      break;
+        case S_CMD:
+          cmd = c;
+          switch (cmd)
+            {
+            case C_START_IOS:
+              DEBUG ("starting IOS...");
+              ios_started = TRUE;
+              state = S_0;
+              break;
 
-	    case C_STOP_IOS:
-	      DEBUG ("stopping IOS...");
-	      ios_started = FALSE;
-	      state = S_0;
-	      break;
+            case C_STOP_IOS:
+              DEBUG ("stopping IOS...");
+              ios_started = FALSE;
+              state = S_0;
+              break;
 
-	    case C_GET_VERSION:
-	      client_get_version ();
-	      state = S_0;
-	      break;
+            case C_GET_VERSION:
+              client_get_version ();
+              state = S_0;
+              break;
 
-	    case C_KEYBOARD_LOCK:
-	      client_keyboard_lock ();
-	      state = S_0;
-	      break;
+            case C_KEYBOARD_LOCK:
+              client_keyboard_lock ();
+              state = S_0;
+              break;
 
-	    case C_KEYBOARD_UNLOCK:
-	      client_keyboard_unlock ();
-	      state = S_0;
-	      break;
+            case C_KEYBOARD_UNLOCK:
+              client_keyboard_unlock ();
+              state = S_0;
+              break;
 
-	    case C_CLEAR_SCREEN:
-	      client_clear_screen ();
-	      state = S_0;
-	      break;
+            case C_CLEAR_SCREEN:
+              client_clear_screen ();
+              state = S_0;
+              break;
 
-	    case C_GET_CONSOLE_SIZE:
-	      client_get_console_size ();
-	      state = S_0;
-	      break;
+            case C_GET_CONSOLE_SIZE:
+              client_get_console_size ();
+              state = S_0;
+              break;
 
-	    case C_CURSOR_OFF:
-	      client_cursor_off ();
-	      state = S_0;
-	      break;
+            case C_CURSOR_OFF:
+              client_cursor_off ();
+              state = S_0;
+              break;
 
-	    case C_CLEAR_EOL:
-	      client_clear_eol ();
-	      state = S_0;
-	      break;
+            case C_CLEAR_EOL:
+              client_clear_eol ();
+              state = S_0;
+              break;
 
-	    case C_SET_CURSOR_FULLBLOCK:
-	      client_set_cursor_fullblock ();
-	      state = S_0;
-	      break;
+            case C_SET_CURSOR_FULLBLOCK:
+              client_set_cursor_fullblock ();
+              state = S_0;
+              break;
 
-	    case C_SET_CURSOR_HALFBLOCK:
-	      client_set_cursor_halfblock ();
-	      state = S_0;
-	      break;
+            case C_SET_CURSOR_HALFBLOCK:
+              client_set_cursor_halfblock ();
+              state = S_0;
+              break;
 
-	    case C_SET_CURSOR_UNDERSCORE:
-	      client_set_cursor_underscore ();
-	      state = S_0;
-	      break;
+            case C_SET_CURSOR_UNDERSCORE:
+              client_set_cursor_underscore ();
+              state = S_0;
+              break;
 
-	    case C_MOUSE_DISABLE:
-	      client_mouse_disable ();
-	      state = S_0;
-	      break;
+            case C_MOUSE_DISABLE:
+              client_mouse_disable ();
+              state = S_0;
+              break;
 
-	    case C_GET_CWD:
-	      client_get_cwd ();
-	      state = S_0;
-	      break;
+            case C_GET_CWD:
+              client_get_cwd ();
+              state = S_0;
+              break;
 
-	    case C_FILE_CLOSE:
-	      client_file_close ();
-	      state = S_0;
-	      break;
+            case C_FILE_CLOSE:
+              client_file_close ();
+              state = S_0;
+              break;
 
-	    case C_GET_TEMPORARY_DIRECTORY:
-	      client_get_temporary_directory ();
-	      state = S_0;
-	      break;
+            case C_GET_TEMPORARY_DIRECTORY:
+              client_get_temporary_directory ();
+              state = S_0;
+              break;
 
-	    case C_FILE_READ_STRING:
-	      param[0] = 'R';
-	      paramlen = 1;
-	      state = S_PARAM;
-	      break;
+            case C_FILE_READ_STRING:
+              param[0] = 'R';
+              paramlen = 1;
+              state = S_PARAM;
+              break;
 
-	    case C_FILE_WRITE_STRING:
-	      param[0] = 'W';
-	      paramlen = 1;
-	      state = S_PARAM;
-	      break;
+            case C_FILE_WRITE_STRING:
+              param[0] = 'W';
+              paramlen = 1;
+              state = S_PARAM;
+              break;
 
-	    case C_FILE_BINARY_READ:
-	      param[0] = 'r';
-	      paramlen = 1;
-	      state = S_PARAM;
-	      break;
+            case C_FILE_BINARY_READ:
+              param[0] = 'r';
+              paramlen = 1;
+              state = S_PARAM;
+              break;
 
-	    case C_FILE_BINARY_WRITE:
-	      param[0] = 'w';
-	      paramlen = 1;
-	      state = S_PARAM;
-	      break;
+            case C_FILE_BINARY_WRITE:
+              param[0] = 'w';
+              paramlen = 1;
+              state = S_PARAM;
+              break;
 
-	    default:
-	      state = S_PARAM;
-	      paramlen = 0;
-	      break;
-	    }
-	  break;
+            default:
+              state = S_PARAM;
+              paramlen = 0;
+              break;
+            }
+          break;
 
-	case S_PARAM:
-	  switch (cmd)
-	    {
-	    case C_SET_COLOR:
-	      client_change_color (FG_COLOR (c), BG_COLOR (c));
-	      state = S_0;
-	      break;
+        case S_PARAM:
+          switch (cmd)
+            {
+            case C_SET_COLOR:
+              client_change_color (FG_COLOR (c), BG_COLOR (c));
+              state = S_0;
+              break;
 
-	    case C_MOVE_CURSOR:
-	      param[paramlen++] = c;
-	      if (paramlen >= 2)
-		{
-		  guint x, y;
+            case C_MOVE_CURSOR:
+              param[paramlen++] = c;
+              if (paramlen >= 2)
+                {
+                  guint x, y;
 
-		  x = param[0]-1;
-		  y = param[1]-1;
-		  client_move_cursor (x, y);
-		  paramlen = 0;
-		  state = S_0;
-		}
-	      break;
+                  x = param[0]-1;
+                  y = param[1]-1;
+                  client_move_cursor (x, y);
+                  paramlen = 0;
+                  state = S_0;
+                }
+              break;
 
-	    case C_OUTPUT_STRING:
-	      DEBUG (">> C_OUTPUT_STRING");
-	      break;
+            case C_OUTPUT_STRING:
+              DEBUG (">> C_OUTPUT_STRING");
+              break;
 
-	    case C_SCROLL_BOX_DOWN:
-	    case C_SCROLL_BOX_UP:
-	      param[paramlen++] = c;
-	      if (paramlen >= 6)
-		{
-		  guint x1, y1, x2, y2;
-		  guint color, nr;
+            case C_SCROLL_BOX_DOWN:
+            case C_SCROLL_BOX_UP:
+              param[paramlen++] = c;
+              if (paramlen >= 6)
+                {
+                  guint x1, y1, x2, y2;
+                  guint color, nr;
 
-		  x1 = param[0]-1;
-		  y1 = param[1]-1;
-		  x2 = param[2]-1;
-		  y2 = param[3]-1;
-		  color = param[4];
-		  nr = param[5];
+                  x1 = param[0]-1;
+                  y1 = param[1]-1;
+                  x2 = param[2]-1;
+                  y2 = param[3]-1;
+                  color = param[4];
+                  nr = param[5];
 
-		  switch (cmd)
-		    {
-		    case C_SCROLL_BOX_DOWN:
-		      client_scroll_box_down (x1, y1, x2, y2, color, nr);
-		      break;
-		    case C_SCROLL_BOX_UP:
-		      client_scroll_box_up (x1, y1, x2, y2, color, nr);
-		      break;
-		    default:
-		      g_warn_if_reached ();
-		    }
-		  paramlen = 0;
-		  state = S_0;
-		}
-	      break;
+                  switch (cmd)
+                    {
+                    case C_SCROLL_BOX_DOWN:
+                      client_scroll_box_down (x1, y1, x2, y2, color, nr);
+                      break;
+                    case C_SCROLL_BOX_UP:
+                      client_scroll_box_up (x1, y1, x2, y2, color, nr);
+                      break;
+                    default:
+                      g_warn_if_reached ();
+                    }
+                  paramlen = 0;
+                  state = S_0;
+                }
+              break;
 
-	    case C_BELL:
-	      param[paramlen++] = c;
-	      if (paramlen >= 1)
-		{
-		  DEBUG (">> C_BELL");
-		  paramlen = 0;
-		  state = S_0;
-		}
-	      break;
+            case C_BELL:
+              param[paramlen++] = c;
+              if (paramlen >= 1)
+                {
+                  DEBUG (">> C_BELL");
+                  paramlen = 0;
+                  state = S_0;
+                }
+              break;
 
-	    case C_FILE_EXISTS:
-	      if (c != NUL)
-		{
-		  if (paramlen < MAXPARAM-1)
-		    param[paramlen++] = c;
-		}
-	      else
-		{
-		  param[paramlen] = '\0';
-		  client_file_exists ((const gchar *)param);
-		  paramlen = 0;
-		  state = S_0;
-		}
-	      break;
+            case C_FILE_EXISTS:
+              if (c != NUL)
+                {
+                  if (paramlen < MAXPARAM-1)
+                    param[paramlen++] = c;
+                }
+              else
+                {
+                  param[paramlen] = '\0';
+                  client_file_exists ((const gchar *)param);
+                  paramlen = 0;
+                  state = S_0;
+                }
+              break;
 
-	    case C_FILE_OPEN:
-	      if (c != NUL)
-		{
-		  if (paramlen < MAXPARAM-1)
-		    param[paramlen++] = c;
-		}
-	      else
-		{
-		  const gchar *filename;
-		  char how;
+            case C_FILE_OPEN:
+              if (c != NUL)
+                {
+                  if (paramlen < MAXPARAM-1)
+                    param[paramlen++] = c;
+                }
+              else
+                {
+                  const gchar *filename;
+                  char how;
 
-		  param[paramlen] = '\0';
+                  param[paramlen] = '\0';
 
-		  how = g_ascii_tolower (param[0]);
-		  filename = (const gchar *)param + 1;
+                  how = g_ascii_tolower (param[0]);
+                  filename = (const gchar *)param + 1;
 
-		  client_file_open (filename, how);
+                  client_file_open (filename, how);
 
-		  paramlen = 0;
-		  state = S_0;
-		}
-	      break;
+                  paramlen = 0;
+                  state = S_0;
+                }
+              break;
 
-	    case C_FILE_NEWLINE:
-	      DEBUG (">> C_FILE_NEWLINE");
-	      break;
+            case C_FILE_NEWLINE:
+              DEBUG (">> C_FILE_NEWLINE");
+              break;
 
-	    case C_FILE_WRITE_STRING:
-	    case C_FILE_BINARY_WRITE:
-	      /* There is no much difference between binary and string writes from
-	       * the client's point of view. Server sends the data to be written
-	       * and fio writes them to the file. We only need to detect NUL
-	       * byte, which marks end of data.
-	       */
-	      if (c == NUL)
-		{
-		  /* NUL marks end of parameters */
-		  param[paramlen++] = '\n';
+            case C_FILE_WRITE_STRING:
+            case C_FILE_BINARY_WRITE:
+              /* There is no much difference between binary and string writes from
+               * the client's point of view. Server sends the data to be written
+               * and fio writes them to the file. We only need to detect NUL
+               * byte, which marks end of data.
+               */
+              if (c == NUL)
+                {
+                  /* NUL marks end of parameters */
+                  param[paramlen++] = '\n';
 
-		  DEBUG (">> %s %u bytes", cmd == C_FILE_WRITE_STRING ? "C_FILE_WRITE_STRING" : "C_FILE_BINARY_WRITE", paramlen-1);
+                  DEBUG (">> %s %u bytes", cmd == C_FILE_WRITE_STRING ? "C_FILE_WRITE_STRING" : "C_FILE_BINARY_WRITE", paramlen-1);
 
-		  if (file_opened)
-		    fio_write (param, paramlen);
+                  if (file_opened)
+                    fio_write (param, paramlen);
 
-		  paramlen = 0;
-		  state = S_0;
-		}
-	      else
-		{
-		  param[paramlen++] = c;
+                  paramlen = 0;
+                  state = S_0;
+                }
+              else
+                {
+                  param[paramlen++] = c;
 
-		  /* write partially completed buffer */
-		  if (paramlen == MAXPARAM-1)
-		    {
-		      if (file_opened)
-			fio_write (param, paramlen);
-		      paramlen = 0;
-		    }
-		}
+                  /* write partially completed buffer */
+                  if (paramlen == MAXPARAM-1)
+                    {
+                      if (file_opened)
+                        fio_write (param, paramlen);
+                      paramlen = 0;
+                    }
+                }
 
-	      break;
+              break;
 
-	    case C_FILE_READ_STRING:
-	    case C_FILE_BINARY_READ:
-	      /* Reading file is similar to both binary and string conventions.
-	       * Parameters received from a server are passed directly to fio
-	       * coprocess. We are responsible to detect an end of parameters
-	       * marked by NUL byte.
-	       */
-	      if (c != NUL)
-		{
-		  if (paramlen < MAXPARAM-1)
-		    param[paramlen++] = c;
-		}
-	      else
-		{
-		  param[paramlen++] = '\n';
+            case C_FILE_READ_STRING:
+            case C_FILE_BINARY_READ:
+              /* Reading file is similar to both binary and string conventions.
+               * Parameters received from a server are passed directly to fio
+               * coprocess. We are responsible to detect an end of parameters
+               * marked by NUL byte.
+               */
+              if (c != NUL)
+                {
+                  if (paramlen < MAXPARAM-1)
+                    param[paramlen++] = c;
+                }
+              else
+                {
+                  param[paramlen++] = '\n';
 
-		  DEBUG (">> %s %.*s bytes", cmd == C_FILE_READ_STRING ? "C_FILE_READ_STRING" : "C_FILE_BINARY_READ", paramlen-2, param+1);
+                  DEBUG (">> %s %.*s bytes", cmd == C_FILE_READ_STRING ? "C_FILE_READ_STRING" : "C_FILE_BINARY_READ", paramlen-2, param+1);
 
-		  if (file_opened)
-		    fio_write (param, paramlen);
+                  if (file_opened)
+                    fio_write (param, paramlen);
 
-		  state = S_0;
-		  paramlen = 0;
-		}
-	      break;
+                  state = S_0;
+                  paramlen = 0;
+                }
+              break;
 
-	    case C_OS_COMMAND:
-	      if (c != NUL)
-		{
-		  if (paramlen < MAXPARAM-1)
-		    param[paramlen++] = c;
-		}
-	      else
-		{
-		  param[paramlen] = '\0';
+            case C_OS_COMMAND:
+              if (c != NUL)
+                {
+                  if (paramlen < MAXPARAM-1)
+                    param[paramlen++] = c;
+                }
+              else
+                {
+                  param[paramlen] = '\0';
 
-		  client_os_command ((const gchar *)param);
+                  client_os_command ((const gchar *)param);
 
-		  state = S_0;
-		  paramlen = 0;
-		}
-	      break;
+                  state = S_0;
+                  paramlen = 0;
+                }
+              break;
 
-	    case C_LOCAL_ACTION:
-	      DEBUG (">> C_LOCAL_ACTION");
-	      break;
+            case C_LOCAL_ACTION:
+              DEBUG (">> C_LOCAL_ACTION");
+              break;
 
-	    case C_ARE_YOU_ALIVE:
-	      client_are_you_alive ();
-	      paramlen = 0;
-	      state = S_0;
-	      break;
+            case C_ARE_YOU_ALIVE:
+              client_are_you_alive ();
+              paramlen = 0;
+              state = S_0;
+              break;
 
-	    case C_READ_INI:
-	      if (c != NUL)
-		{
-		  if (paramlen < MAXPARAM)
-		    param[paramlen++] = c;
-		}
-	      else
-		{
-		  char *sec, *par;
-		  sec = (char *)param;
-		  par = memchr (param, SOH, paramlen);
-		  if (par != NULL)
-		    {
-		      *par = '\0';
-		      par++;
-		    }
-		  if (par != NULL)
-		    client_read_ini (sec, par);
-		  else
-		    DEBUG (">> C_READ_INI: %.*s", paramlen, param);
-		  paramlen = 0;
-		  state = S_0;
-		}
-	      break;
+            case C_READ_INI:
+              if (c != NUL)
+                {
+                  if (paramlen < MAXPARAM)
+                    param[paramlen++] = c;
+                }
+              else
+                {
+                  char *sec, *par;
+                  sec = (char *)param;
+                  par = memchr (param, SOH, paramlen);
+                  if (par != NULL)
+                    {
+                      *par = '\0';
+                      par++;
+                    }
+                  if (par != NULL)
+                    client_read_ini (sec, par);
+                  else
+                    DEBUG (">> C_READ_INI: %.*s", paramlen, param);
+                  paramlen = 0;
+                  state = S_0;
+                }
+              break;
 
-	    case C_MOUSE_ENABLE:
-	      client_mouse_enable ();
-	      paramlen = 0;
-	      state = S_0;
-	      break;
+            case C_MOUSE_ENABLE:
+              client_mouse_enable ();
+              paramlen = 0;
+              state = S_0;
+              break;
 
-	    case 99:
-	      DEBUG (" unhandled command 99 ????");
-	      if (paramlen < 8)
-		param[paramlen++] = c;
-	      else
-		{
-		  paramlen = 0;
-	          state = S_0;
-		}
-	      break;
+            case 99:
+              DEBUG (" unhandled command 99 ????");
+              if (paramlen < 8)
+                param[paramlen++] = c;
+              else
+                {
+                  paramlen = 0;
+                  state = S_0;
+                }
+              break;
 
-	    default:
-	      DEBUG (" unknown command %d ??", cmd);
-	      g_warn_if_reached();
-	     // exit(4);
-	      state = S_0;
-	    }
-	  break;
+            default:
+              DEBUG (" unknown command %d ??", cmd);
+              g_warn_if_reached();
+             // exit(4);
+              state = S_0;
+            }
+          break;
 
-	default:
-	  g_warn_if_reached();
-	}
+        default:
+          g_warn_if_reached();
+        }
     }
 
   while (inleft > 0)
@@ -1176,20 +1176,20 @@ client_do_input (guchar *buf, gsize len)
       rc = iconv (cd, &inptr, &inleft, &outptr, &outleft);
 
       if (rc == (size_t) -1)
-	{
-	  if (errno == EINVAL)
-	    {
-	      chn_prepend (inptr, inleft);
-	      break;
-	    }
-	  else
-	    {
-	      g_warning ("iconv: can't convert: %s", strerror (errno));
-	      break;
-	    }
-	}
+        {
+          if (errno == EINVAL)
+            {
+              chn_prepend (inptr, inleft);
+              break;
+            }
+          else
+            {
+              g_warning ("iconv: can't convert: %s", strerror (errno));
+              break;
+            }
+        }
       else
-	client_write_console (buffer, sizeof (buffer)-outleft);
+        client_write_console (buffer, sizeof (buffer)-outleft);
     }
 }
 

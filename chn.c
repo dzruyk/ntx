@@ -3,7 +3,6 @@
 
 #include "chn.h"
 
-
 ChannelCallbacks channel_callbacks;
 ChannelFuncs channel_funcs;
 

@@ -98,12 +98,12 @@ chn_echo_write (const void *buf, gsize len)
       buffer_len = 0;
 
       if (prepend_len > 0)
-	{
-	  g_assert (sizeof(buffer) >= sizeof(prepend));
-	  memcpy (buffer, prepend, prepend_len);
-	  buffer_len += prepend_len;
-	  prepend_len = 0;
-	}
+        {
+          g_assert (sizeof(buffer) >= sizeof(prepend));
+          memcpy (buffer, prepend, prepend_len);
+          buffer_len += prepend_len;
+          prepend_len = 0;
+        }
 
       n = MIN(len, sizeof(buffer)-buffer_len);
 
@@ -111,7 +111,7 @@ chn_echo_write (const void *buf, gsize len)
       buffer_len += n;
 
       if (channel_callbacks.input != NULL)
-	(*channel_callbacks.input) (buffer, buffer_len, channel_callbacks.user_data);
+        (*channel_callbacks.input) (buffer, buffer_len, channel_callbacks.user_data);
 
       len -= n;
       total += n;

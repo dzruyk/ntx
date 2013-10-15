@@ -75,9 +75,9 @@ console_scroll_event_cb (GtkWidget *widget, GdkEventScroll *event, gpointer user
     {
     case GDK_SCROLL:
       if (event->direction == GDK_SCROLL_UP)
-	key_send_up ();
+        key_send_up ();
       else if (event->direction == GDK_SCROLL_DOWN)
-	key_send_down ();
+        key_send_down ();
       break;
 
     default:
@@ -109,9 +109,9 @@ console_button_event_cb (GtkWidget *widget, GdkEventButton *event, gpointer user
       if (event->button == 1)
         len = snprintf (buf, MAXMSGBUF, "-11#1#%u#%u", (guint)x+1, (guint)y+1);
       else if (event->button == 2)
-	len = snprintf (buf, MAXMSGBUF, "-11#2#%u#%u", (guint)x+1, (guint)y+1);
+        len = snprintf (buf, MAXMSGBUF, "-11#2#%u#%u", (guint)x+1, (guint)y+1);
       else if (event->button == 3)
-	len = snprintf (buf, MAXMSGBUF, "-11#R#%u#%u", (guint)x+1, (guint)y+1);
+        len = snprintf (buf, MAXMSGBUF, "-11#R#%u#%u", (guint)x+1, (guint)y+1);
       break;
 
     case GDK_2BUTTON_PRESS:
@@ -150,29 +150,29 @@ console_key_press_event_cb (GtkWidget *widget, GdkEventKey *event, gpointer user
         {
         case GDK_Return:
         case GDK_KP_Enter:
-  	  chn_write ("\r\n", 2);
-	  break;
+            chn_write ("\r\n", 2);
+          break;
 
         case GDK_BackSpace:
-	  chn_write ("\b", 1);
-	  break;
+          chn_write ("\b", 1);
+          break;
 
         case GDK_Tab:
-	  chn_write ("\t", 1);
-	  break;
+          chn_write ("\t", 1);
+          break;
 
         default:
-	  uc = gdk_keyval_to_unicode (event->keyval);
-	  if (uc > 0)
-	    {
-	      gchar buf[UTF8_CHAR_LEN_MAX];
-	      gint len;
+          uc = gdk_keyval_to_unicode (event->keyval);
+          if (uc > 0)
+            {
+              gchar buf[UTF8_CHAR_LEN_MAX];
+              gint len;
 
-	      len = g_unichar_to_utf8 (uc, buf);
-	      g_assert (len > 0);
-	      chn_write (buf, len);
-	    }
-	  break;
+              len = g_unichar_to_utf8 (uc, buf);
+              g_assert (len > 0);
+              chn_write (buf, len);
+            }
+          break;
         }
     }
   else

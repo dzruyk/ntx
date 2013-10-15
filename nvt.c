@@ -29,23 +29,23 @@ enum
   STATE_IAC2
 };
 
-#define MAXREADBUF	1024
-#define MAXWRITEBUF	1024
-#define SUBNEGBUF	128
+#define MAXREADBUF       1024
+#define MAXWRITEBUF      1024
+#define SUBNEGBUF        128
 
 
 static GSocketConnection *connection;
 static GSocketClient     *client;
 static GIOChannel        *channel;
-static gint               source_id;
-static NvtCallbacks	  callbacks;
-static guchar		  subnegbuf[SUBNEGBUF]; /* subnegotiation buffer */
-static guint		  subneglen = 0;        /* bytes in subnegotiation buffer */
-static gint		  state = STATE_0;	/* telnet protocol FSM state */
-static gint		  command;		/* telnet command, one of WILL, WONT, DO, DONT */
-static guchar		  prepbuf[MAXREADBUF];  /* read prepend buffer */
-static gint               preplen = 0;		/* number of bytes in prepend buffer*/
-static gboolean	          crflag = 0;           /* carriage return recieved in STATE_0 */
+static gint              source_id;
+static NvtCallbacks      callbacks;
+static guchar            subnegbuf[SUBNEGBUF]; /* subnegotiation buffer */
+static guint             subneglen = 0;        /* bytes in subnegotiation buffer */
+static gint              state = STATE_0;      /* telnet protocol FSM state */
+static gint              command;              /* telnet command, one of WILL, WONT, DO, DONT */
+static guchar            prepbuf[MAXREADBUF];  /* read prepend buffer */
+static gint              preplen = 0;          /* number of bytes in prepend buffer*/
+static gboolean          crflag = 0;           /* carriage return recieved in STATE_0 */
 
 static void nvt_real_disconnect ();
 
@@ -99,7 +99,7 @@ nvt_subneg (gint cmd, guchar *arg, gsize len)
   if (err != NULL)
     {
       if (callbacks.error != NULL)
-	callbacks.error (err, callbacks.user_data);
+        callbacks.error (err, callbacks.user_data);
       g_error_free (err);
     }
 }
@@ -130,7 +130,7 @@ nvt_cmd (gint cmd, gint opcode)
   if (err != NULL)
     {
       if (callbacks.error != NULL)
-	callbacks.error (err, callbacks.user_data);
+        callbacks.error (err, callbacks.user_data);
       g_error_free (err);
     }
 }
@@ -180,182 +180,182 @@ nvt_read (GIOChannel *channel, GIOCondition cond, gpointer user_data)
     case G_IO_IN:
 
       if (preplen > 0)
-	{
-	  g_assert (preplen <= sizeof (buf));
-	  memcpy (buf, prepbuf, preplen);
+        {
+          g_assert (preplen <= sizeof (buf));
+          memcpy (buf, prepbuf, preplen);
           status = g_io_channel_read_chars (channel, (gchar *)buf+preplen, sizeof (buf)-preplen, &len, &err);
-	  preplen = 0;
-	}
+          preplen = 0;
+        }
       else
-	status = g_io_channel_read_chars (channel, (gchar *)buf, sizeof(buf), &len, &err);
+        status = g_io_channel_read_chars (channel, (gchar *)buf, sizeof(buf), &len, &err);
 
       switch (status)
-	{
-	case G_IO_STATUS_NORMAL:
+        {
+        case G_IO_STATUS_NORMAL:
 
-	  //g_debug ("read %d bytes", len);
+          //g_debug ("read %d bytes", len);
 
-	  n = 0;
+          n = 0;
 
-	  for (i = 0; i < len; i++)
-	    {
-	      guchar c;
+          for (i = 0; i < len; i++)
+            {
+              guchar c;
 
-	      c = buf[i];
+              c = buf[i];
 
-	      switch (state)
-		{
-		case STATE_0:
-		  if (c == IAC)
-		    {
-		      state = STATE_IAC;
-		    }
-		  else
-		    {
-		      if (!crflag)
-			if (c == CR)
-			  crflag = TRUE;
-			else
-			  {
-			    buf[n] = c;
-			    n++;
-			  }
-		      else
-			{
-			  if (c == LF)
-			    {
-			      buf[n++] = CR;
-			      buf[n++] = LF;
-			    }
-			  else if (c != 0)
-			    {
-			      buf[n++] = CR;
-			      buf[n++] = c;
-			    }
-			  else
-			    {
-			      buf[n] = CR;
-			      n++;
-			    }
-			  crflag = 0;
-			}
-		    }
-		  break;
+              switch (state)
+                {
+                case STATE_0:
+                  if (c == IAC)
+                    {
+                      state = STATE_IAC;
+                    }
+                  else
+                    {
+                      if (!crflag)
+                        if (c == CR)
+                          crflag = TRUE;
+                        else
+                          {
+                            buf[n] = c;
+                            n++;
+                          }
+                      else
+                        {
+                          if (c == LF)
+                            {
+                              buf[n++] = CR;
+                              buf[n++] = LF;
+                            }
+                          else if (c != 0)
+                            {
+                              buf[n++] = CR;
+                              buf[n++] = c;
+                            }
+                          else
+                            {
+                              buf[n] = CR;
+                              n++;
+                            }
+                          crflag = 0;
+                        }
+                    }
+                  break;
 
-		case STATE_IAC:
-		  switch (c)
-		    {
-		    case IAC:
-		      state = STATE_0;
-		      buf[n] = IAC;
-		      n++;
-		      break;
+                case STATE_IAC:
+                  switch (c)
+                    {
+                    case IAC:
+                      state = STATE_0;
+                      buf[n] = IAC;
+                      n++;
+                      break;
 
-		    case SB:
-		      state = STATE_SB;
-		      break;
+                    case SB:
+                      state = STATE_SB;
+                      break;
 
-		    case WILL:
-		    case WONT:
-		    case DO:
-		    case DONT:
-		      state = STATE_OPT;
-		      command = c;
-		      break;
+                    case WILL:
+                    case WONT:
+                    case DO:
+                    case DONT:
+                      state = STATE_OPT;
+                      command = c;
+                      break;
 
-		    default:
-		      if (callbacks.command != NULL)
-			(*callbacks.command) (c, -1, callbacks.user_data);
-		      state = STATE_0;
-		      break;
-		    }
-		  break;
+                    default:
+                      if (callbacks.command != NULL)
+                        (*callbacks.command) (c, -1, callbacks.user_data);
+                      state = STATE_0;
+                      break;
+                    }
+                  break;
 
-		case STATE_OPT:
-		  if (callbacks.command != NULL)
-		    (*callbacks.command) (command, c, callbacks.user_data);
-		  else
-		    {
-		      switch (command)
-			{
-			case DO:
-			  nvt_wont (c);
-			  break;
-			case WILL:
-			  nvt_dont (c);
-			  break;
-			}
-		    }
+                case STATE_OPT:
+                  if (callbacks.command != NULL)
+                    (*callbacks.command) (command, c, callbacks.user_data);
+                  else
+                    {
+                      switch (command)
+                        {
+                        case DO:
+                          nvt_wont (c);
+                          break;
+                        case WILL:
+                          nvt_dont (c);
+                          break;
+                        }
+                    }
 
-		  command = 0;
-		  state = STATE_0;
-		  break;
-		
-		case STATE_SB:
-		  command = c;
-		  subneglen = 0;
-		  state = STATE_SB2;
-		  break;
+                  command = 0;
+                  state = STATE_0;
+                  break;
+                
+                case STATE_SB:
+                  command = c;
+                  subneglen = 0;
+                  state = STATE_SB2;
+                  break;
 
-		case STATE_SB2:
-		  if (c == IAC)
-		    state = STATE_IAC2;
-		  else
-		    {
-		      if (subneglen < SUBNEGBUF)
-			{
-			  subnegbuf[subneglen] = c;
-			  subneglen++;
-			}
-		    }
-		  break;
-		
-		case STATE_IAC2: /* ignore codes after IAC in subnegotiation, except IAC and SE */
-		  if (c == IAC)
-		    {
-		      if (subneglen < SUBNEGBUF)
-			{
-			  subnegbuf[subneglen] = IAC;
-			  subneglen++;
-			}
-		      state = STATE_SB2;
-		    }
-		  else if (c == SE)
-		    {
-		      if (callbacks.subnegotiation != NULL)
-			(*callbacks.subnegotiation) (command, subnegbuf, subneglen, callbacks.user_data);
-		      state = STATE_0;
-		    }
-		  break;
+                case STATE_SB2:
+                  if (c == IAC)
+                    state = STATE_IAC2;
+                  else
+                    {
+                      if (subneglen < SUBNEGBUF)
+                        {
+                          subnegbuf[subneglen] = c;
+                          subneglen++;
+                        }
+                    }
+                  break;
+                
+                case STATE_IAC2: /* ignore codes after IAC in subnegotiation, except IAC and SE */
+                  if (c == IAC)
+                    {
+                      if (subneglen < SUBNEGBUF)
+                        {
+                          subnegbuf[subneglen] = IAC;
+                          subneglen++;
+                        }
+                      state = STATE_SB2;
+                    }
+                  else if (c == SE)
+                    {
+                      if (callbacks.subnegotiation != NULL)
+                        (*callbacks.subnegotiation) (command, subnegbuf, subneglen, callbacks.user_data);
+                      state = STATE_0;
+                    }
+                  break;
 
-		default:
-		  g_warn_if_reached ();
-		}
-	    }
+                default:
+                  g_warn_if_reached ();
+                }
+            }
 
-	  if (n > 0)
-	    {
-	      if (callbacks.input_bytes != NULL)
-		(*callbacks.input_bytes) (buf, n, callbacks.user_data);
-	    }
+          if (n > 0)
+            {
+              if (callbacks.input_bytes != NULL)
+                (*callbacks.input_bytes) (buf, n, callbacks.user_data);
+            }
 
-	  break;
+          break;
 
-	case G_IO_STATUS_ERROR:
-	  if (callbacks.error != NULL)
-	    (*callbacks.error) (err, callbacks.user_data);
-	  nvt_real_disconnect ();
-	  break;
+        case G_IO_STATUS_ERROR:
+          if (callbacks.error != NULL)
+            (*callbacks.error) (err, callbacks.user_data);
+          nvt_real_disconnect ();
+          break;
 
-	case G_IO_STATUS_EOF:
-	  if (callbacks.disconnect != NULL)
-	    (*callbacks.disconnect) (NULL, callbacks.user_data);
-	  nvt_real_disconnect ();
-	  break;
+        case G_IO_STATUS_EOF:
+          if (callbacks.disconnect != NULL)
+            (*callbacks.disconnect) (NULL, callbacks.user_data);
+          nvt_real_disconnect ();
+          break;
 
-	case G_IO_STATUS_AGAIN:
-	  break;
-	}
+        case G_IO_STATUS_AGAIN:
+          break;
+        }
       break;
 
     default:
@@ -388,7 +388,7 @@ nvt_ready (GObject *object, GAsyncResult *res, gpointer user_data)
     {
       g_assert (connection == NULL);
       if (callbacks.error != NULL)
-	(callbacks.error) (err, callbacks.user_data);
+        (callbacks.error) (err, callbacks.user_data);
       g_error_free (err);
       return;
     }
@@ -435,35 +435,35 @@ nvt_write (const void *buf, gsize len)
       count = 0;
 
       for (i = 0; i < n; i++)
-	{
-	  if (c[i] == IAC)
-	    out[count++] = IAC;
-	  out[count++] = c[i];
-	}
+        {
+          if (c[i] == IAC)
+            out[count++] = IAC;
+          out[count++] = c[i];
+        }
 
       err = NULL;
       status = g_io_channel_write_chars (channel, (gchar *)out, count, &written, &err);
 
       g_assert ((status != G_IO_STATUS_ERROR && err == NULL) || (status == G_IO_STATUS_ERROR && err != NULL));
-	
+        
       if (err != NULL)
-	{
-	  if (status != G_IO_STATUS_AGAIN)
-	    {
-	      if (callbacks.error != NULL)
-		callbacks.error (err, callbacks.user_data);
-	    }
-	  else
-	    {
-	      /* It is difficult to calculate exactly how many user bytes were
-	       * written when status is G_IO_STATUS_AGAIN and written > 0, but
-	       * it is better to count them then not to count at all.
-	       */
-	      total += written;
-	    }
-	  g_error_free (err);
-	  break;
-	}
+        {
+          if (status != G_IO_STATUS_AGAIN)
+            {
+              if (callbacks.error != NULL)
+                callbacks.error (err, callbacks.user_data);
+            }
+          else
+            {
+              /* It is difficult to calculate exactly how many user bytes were
+               * written when status is G_IO_STATUS_AGAIN and written > 0, but
+               * it is better to count them then not to count at all.
+               */
+              total += written;
+            }
+          g_error_free (err);
+          break;
+        }
 
       total += n;
       c += n;
@@ -512,10 +512,10 @@ nvt_real_disconnect ()
       err = NULL;
       g_io_stream_close (G_IO_STREAM (connection), NULL, &err);
       if (err != NULL)
-	{
-	  fprintf (stderr, "nvt_real_disconnect: g_io_stream_close %s\n", err->message);
-	  g_error_free (err);
-	}
+        {
+          fprintf (stderr, "nvt_real_disconnect: g_io_stream_close %s\n", err->message);
+          g_error_free (err);
+        }
       g_object_unref (connection);
       connection = NULL;
     }

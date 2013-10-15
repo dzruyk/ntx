@@ -36,10 +36,10 @@ void key_send      (const GdkEventKey *event);
  */
 void key_send_code (gint keycode);
 
-#define key_send_page_down()	key_send_code (GDK_Page_Down)
-#define key_send_page_up()	key_send_code (GDK_Page_Up)
-#define key_send_up()		key_send_code (GDK_Up)
-#define key_send_down()		key_send_code (GDK_Down)
+#define key_send_page_down()      key_send_code (GDK_Page_Down)
+#define key_send_page_up()        key_send_code (GDK_Page_Up)
+#define key_send_up()             key_send_code (GDK_Up)
+#define key_send_down()           key_send_code (GDK_Down)
 
 /*
  * GUI related functions and controls.

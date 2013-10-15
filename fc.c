@@ -3,8 +3,8 @@
 
 #include "fc.h"
 
-#define DEFAULT_FAMILY		 "sans"
-#define DEFAULT_STYLE		 "regular"
+#define DEFAULT_FAMILY           "sans"
+#define DEFAULT_STYLE            "regular"
 #define DEFAULT_MONOSPACE_FAMILY "sans mono"
 #define DEFAULT_MONOSPACE_STYLE  "regular"
 
@@ -88,7 +88,7 @@ width_to_string (gint width)
     case FC_WIDTH_ULTRAEXPANDED:
       return "Ultraexpanded";
     default:
-	g_warn_if_reached ();
+        g_warn_if_reached ();
     }
   return NULL;
 }
@@ -113,16 +113,16 @@ fc_synthesize_style (gint width, gint weight, gint slant)
   if (slant != FC_SLANT_ROMAN)
     {
       if (width != FC_WIDTH_NORMAL)
-	s = g_strdup_printf ("%s %s %s", width_to_string (width), weight_to_string (weight), slant_to_string (slant));
+        s = g_strdup_printf ("%s %s %s", width_to_string (width), weight_to_string (weight), slant_to_string (slant));
       else
-	s = g_strdup_printf ("%s %s", weight_to_string (weight), slant_to_string (slant));
+        s = g_strdup_printf ("%s %s", weight_to_string (weight), slant_to_string (slant));
     }
   else
     {
       if (width != FC_WIDTH_NORMAL)
-	s = g_strdup_printf ("%s %s", width_to_string (width), weight_to_string (weight));
+        s = g_strdup_printf ("%s %s", width_to_string (width), weight_to_string (weight));
       else
-	s = g_strdup (weight_to_string (weight));
+        s = g_strdup (weight_to_string (weight));
     }
 
   return s;
@@ -130,11 +130,11 @@ fc_synthesize_style (gint width, gint weight, gint slant)
 
 void
 fc_get_matched (const gchar  *family,
- 	        const gchar  *style,
-	        gboolean      monospaced,
-	        gboolean      scalable,
-	        gchar       **matched_family,
-	        gchar       **matched_style)
+                const gchar  *style,
+                gboolean      monospaced,
+                gboolean      scalable,
+                gchar       **matched_family,
+                gchar       **matched_style)
 {
   FcPattern *pattern;
   FcPattern *match;
@@ -154,7 +154,7 @@ fc_get_matched (const gchar  *family,
   else
     {
       if (monospaced)
-	FcPatternAddString (pattern, FC_FAMILY, (const FcChar8 *)DEFAULT_MONOSPACE_FAMILY);
+        FcPatternAddString (pattern, FC_FAMILY, (const FcChar8 *)DEFAULT_MONOSPACE_FAMILY);
       else
         FcPatternAddString (pattern, FC_FAMILY, (const FcChar8 *)DEFAULT_FAMILY);
     }
@@ -164,9 +164,9 @@ fc_get_matched (const gchar  *family,
   else
     {
       if (monospaced)
-	FcPatternAddString (pattern, FC_STYLE, (const FcChar8 *)DEFAULT_MONOSPACE_STYLE);
+        FcPatternAddString (pattern, FC_STYLE, (const FcChar8 *)DEFAULT_MONOSPACE_STYLE);
       else
-	FcPatternAddString (pattern, FC_STYLE, (const FcChar8 *)DEFAULT_STYLE);
+        FcPatternAddString (pattern, FC_STYLE, (const FcChar8 *)DEFAULT_STYLE);
     }
 
   FcConfigSubstitute (NULL, pattern, FcMatchPattern);
@@ -196,14 +196,14 @@ fc_get_matched (const gchar  *family,
       res = FcPatternGetString (match, FC_FAMILY, 0, (FcChar8 **) &tmp);
 
       if (res == FcResultMatch)
-	*matched_family = g_strdup (tmp);
+        *matched_family = g_strdup (tmp);
       else
-	{
-	  if (monospaced)
-	    *matched_family = g_strdup (DEFAULT_MONOSPACE_FAMILY);
-	  else
-	    *matched_family = g_strdup (DEFAULT_FAMILY);
-	}
+        {
+          if (monospaced)
+            *matched_family = g_strdup (DEFAULT_MONOSPACE_FAMILY);
+          else
+            *matched_family = g_strdup (DEFAULT_FAMILY);
+        }
     }
 
   if (matched_style != NULL)
@@ -215,9 +215,9 @@ fc_get_matched (const gchar  *family,
 
 void
 fc_list_faces (gboolean        monospaced,
-	       gboolean        scalable,
-	       FcListFacesFunc callback,
-	       gpointer        user_data)
+               gboolean        scalable,
+               FcListFacesFunc callback,
+               gpointer        user_data)
 {
   FcFontSet *font_list;
   FcObjectSet *object_set;
@@ -246,7 +246,7 @@ fc_list_faces (gboolean        monospaced,
       FcResult res;
 
       if (done)
-	break;
+        break;
 
       res = FcPatternGetString (font_list->fonts[i], FC_FAMILY, 0, (FcChar8 **) &family);
       g_assert (res == FcResultMatch);
@@ -254,17 +254,17 @@ fc_list_faces (gboolean        monospaced,
       res = FcPatternGetInteger (font_list->fonts[i], FC_WEIGHT, 0, &weight);
 
       if (res != FcResultMatch)
-	weight = FC_WEIGHT_NORMAL;
+        weight = FC_WEIGHT_NORMAL;
 
       res = FcPatternGetInteger (font_list->fonts[i], FC_SLANT, 0, &slant);
 
       if (res != FcResultMatch)
-	slant = FC_SLANT_ROMAN;
+        slant = FC_SLANT_ROMAN;
 
       res = FcPatternGetInteger (font_list->fonts[i], FC_WIDTH, 0, &width);
 
       if (res != FcResultMatch)
-	width = FC_WIDTH_NORMAL;
+        width = FC_WIDTH_NORMAL;
 
       style = fc_synthesize_style (width, weight, slant);
 
@@ -280,11 +280,11 @@ fc_list_faces (gboolean        monospaced,
 
 void
 fc_get_font_file (const gchar  *family,
-		  const gchar  *style,
-		  gboolean      monospaced,
-		  gboolean      scalable,
-		  gchar       **file,
-		  gint         *face_index)
+                  const gchar  *style,
+                  gboolean      monospaced,
+                  gboolean      scalable,
+                  gchar       **file,
+                  gint         *face_index)
 {
   FcPattern *pat, *match;
   FcResult res;
@@ -297,9 +297,9 @@ fc_get_font_file (const gchar  *family,
   else
     {
       if (monospaced)
-	FcPatternAddString (pat, FC_FAMILY, (const FcChar8 *)DEFAULT_MONOSPACE_FAMILY);
+        FcPatternAddString (pat, FC_FAMILY, (const FcChar8 *)DEFAULT_MONOSPACE_FAMILY);
       else
-	FcPatternAddString (pat, FC_FAMILY, (const FcChar8 *)DEFAULT_FAMILY);
+        FcPatternAddString (pat, FC_FAMILY, (const FcChar8 *)DEFAULT_FAMILY);
     }
 
   if (style != NULL)
@@ -307,9 +307,9 @@ fc_get_font_file (const gchar  *family,
   else
     {
       if (monospaced)
-	FcPatternAddString (pat, FC_STYLE, (const FcChar8 *)DEFAULT_MONOSPACE_STYLE);
+        FcPatternAddString (pat, FC_STYLE, (const FcChar8 *)DEFAULT_MONOSPACE_STYLE);
       else
-	FcPatternAddString (pat, FC_STYLE, (const FcChar8 *)DEFAULT_STYLE);
+        FcPatternAddString (pat, FC_STYLE, (const FcChar8 *)DEFAULT_STYLE);
     }
 
   if (monospaced)
@@ -329,7 +329,7 @@ fc_get_font_file (const gchar  *family,
     {
       res = FcPatternGetInteger (match, FC_INDEX, 0, face_index);
       if (res != FcResultMatch)
-	*face_index = 0;
+        *face_index = 0;
     }
 
   if (file != NULL)
@@ -338,9 +338,9 @@ fc_get_font_file (const gchar  *family,
 
       res = FcPatternGetString (match, FC_FILE, 0, (FcChar8 **) &tmp);
       if (res != FcResultMatch)
-	*file = NULL;
+        *file = NULL;
       else
-	*file = g_strdup (tmp);
+        *file = g_strdup (tmp);
     }
 
   FcPatternDestroy (match);

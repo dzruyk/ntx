@@ -93,7 +93,7 @@
 #include <errno.h>
 #include <limits.h>
 
-#define BUFMAX	8192
+#define BUFMAX      8192
 
 enum
 {
@@ -127,20 +127,20 @@ main (int argc, char *argv[])
   while ((opt = getopt (argc, argv, "rwa")) != -1)
     {
       switch (opt)
-	{
-	case 'r':
-	  	mode = "r";
-	  break;
-	case 'w':
-	  	mode = "w";
-	  break;
-	case 'a':
-	  	mode = "a";
-	  break;
-	default:
-	  usage ();
-	  exit (1);
-	}
+        {
+        case 'r':
+                  mode = "r";
+          break;
+        case 'w':
+                  mode = "w";
+          break;
+        case 'a':
+                  mode = "a";
+          break;
+        default:
+          usage ();
+          exit (1);
+        }
     }
 
   argc -= optind;
@@ -156,7 +156,7 @@ main (int argc, char *argv[])
 
   /* HACK: replace win bslashes with unix slashes. */
   while ((c = strchr(c, '\\')) != NULL)
-	*c++ = '/';
+        *c++ = '/';
 
   fp = fopen (argv[0], mode);
   if (fp == NULL)
@@ -172,143 +172,143 @@ main (int argc, char *argv[])
       n = strlen (buf);
 
       if (n < 2)
-	{
-	  fprintf (stderr, "too short command sequence\n");
-	  continue;
-	}
+        {
+          fprintf (stderr, "too short command sequence\n");
+          continue;
+        }
 
       if (buf[n-1] == LF)
-	{
-	  buf[n-1] = '\0';
-	  n--;
-	}
+        {
+          buf[n-1] = '\0';
+          n--;
+        }
       else
-	{
-	  fprintf (stderr, "no <lf> at end of line\n");
-	}
+        {
+          fprintf (stderr, "no <lf> at end of line\n");
+        }
 
       if (n >= 2)
-	{
-	  char buf2[BUFMAX*2];
-	  size_t len, nbytes;
-	  char *p, *cp, *endptr, chr;
+        {
+          char buf2[BUFMAX*2];
+          size_t len, nbytes;
+          char *p, *cp, *endptr, chr;
 
-	  chr = buf[0];
+          chr = buf[0];
 
-	  switch (chr)
-	    {
-	    case 'r':
-	    case 'R':
-	      cp = buf + 1;
-	      errno = 0;
-	      len = strtoul (cp, &endptr, 10);
-	      if (((len == 0 || len == LONG_MAX) && errno != 0) ||
-		  (*cp != '\0' && (endptr == cp || *endptr != '\0')))
-		{
-		  fprintf (stderr, "r: invalid read length\n");
-		  continue;
-		}
-	      if (len > BUFMAX)
-		{
-		  fprintf (stderr, "%c: can't read that much\n", chr);
-		  len = BUFMAX;
-		}
+          switch (chr)
+            {
+            case 'r':
+            case 'R':
+              cp = buf + 1;
+              errno = 0;
+              len = strtoul (cp, &endptr, 10);
+              if (((len == 0 || len == LONG_MAX) && errno != 0) ||
+                  (*cp != '\0' && (endptr == cp || *endptr != '\0')))
+                {
+                  fprintf (stderr, "r: invalid read length\n");
+                  continue;
+                }
+              if (len > BUFMAX)
+                {
+                  fprintf (stderr, "%c: can't read that much\n", chr);
+                  len = BUFMAX;
+                }
 
-	      nbytes = fread (buf, 1, len, fp);
+              nbytes = fread (buf, 1, len, fp);
 
-	      if (chr == 'r')
-		{
-		  char c;
-		  int i;
+              if (chr == 'r')
+                {
+                  char c;
+                  int i;
 
-		  p = buf2;
+                  p = buf2;
 
-		  for (i = 0; i < nbytes; i++)
-		    {
-		      c = buf[i];
+                  for (i = 0; i < nbytes; i++)
+                    {
+                      c = buf[i];
 
-		      if (c == NUL || c == SOH || c == LF || c == CR || c == ESC)
-			{
-			  *p++ = 0x1;
-			  *p++ = c + 0x64;
-			}
-		      else
-			*p++ = c;
-		    }
+                      if (c == NUL || c == SOH || c == LF || c == CR || c == ESC)
+                        {
+                          *p++ = 0x1;
+                          *p++ = c + 0x64;
+                        }
+                      else
+                        *p++ = c;
+                    }
 
-		  nbytes = p - buf2;
-		  p = buf2;
-		}
-	      else
-		{
-		  p = buf;
-		}
+                  nbytes = p - buf2;
+                  p = buf2;
+                }
+              else
+                {
+                  p = buf;
+                }
 
-	      /* Catch error or EOF condition on file. */
-	      if (nbytes == 0 || ferror (fp))
-		chr = '0';
-	      else
-		chr = '1';
+              /* Catch error or EOF condition on file. */
+              if (nbytes == 0 || ferror (fp))
+                chr = '0';
+              else
+                chr = '1';
 
-	      fputc (chr, stdout);
-	      fwrite (p, 1, nbytes, stdout);
-	      fputc (ESC, stdout);
-	      fputc (LF, stdout);
+              fputc (chr, stdout);
+              fwrite (p, 1, nbytes, stdout);
+              fputc (ESC, stdout);
+              fputc (LF, stdout);
 
-	      if (ferror (stdout) || fflush (stdout) != 0)
-		{
-		  fprintf (stderr, "error writing out\n");
-		  clearerr (stdout);
-		}
+              if (ferror (stdout) || fflush (stdout) != 0)
+                {
+                  fprintf (stderr, "error writing out\n");
+                  clearerr (stdout);
+                }
 
-	      break;
+              break;
 
-	    case 'w':
-	    case 'W':
+            case 'w':
+            case 'W':
 
-	      if (chr == 'w')
-		{
-		  char *c;
+              if (chr == 'w')
+                {
+                  char *c;
 
-		  for (c = buf+1, p = buf; *c != '\0'; )
-		    {
-		      if (*c == 0x01 && c[1] != '\0')
-			{
-			  *p++ = c[1] - 0x64;
-			  c += 2;
-			}
-		      else
-			{
-			  *p++ = *c;
-			  c += 1;
-			}
-		    }
+                  for (c = buf+1, p = buf; *c != '\0'; )
+                    {
+                      if (*c == 0x01 && c[1] != '\0')
+                        {
+                          *p++ = c[1] - 0x64;
+                          c += 2;
+                        }
+                      else
+                        {
+                          *p++ = *c;
+                          c += 1;
+                        }
+                    }
 
-		  len = p - buf;
-		  p = buf;
-		}
-	      else
-		{
-		  p = buf + 1;
-		  len = n - 1;
-		}
+                  len = p - buf;
+                  p = buf;
+                }
+              else
+                {
+                  p = buf + 1;
+                  len = n - 1;
+                }
 
-	      nbytes = fwrite (p, 1, len, fp);
+              nbytes = fwrite (p, 1, len, fp);
 
-	      if ((nbytes < len && ferror (fp)) || fflush (fp) != 0)
-		fprintf (stderr, "error writing file: %s\n", strerror (errno));
+              if ((nbytes < len && ferror (fp)) || fflush (fp) != 0)
+                fprintf (stderr, "error writing file: %s\n", strerror (errno));
 
-	      break;
+              break;
 
-	    default:
-	      fprintf(stderr, "unknown command 0x%02x\n", (unsigned char)*cp);
-	      break;
-	    }
-	}
+            default:
+              fprintf(stderr, "unknown command 0x%02x\n", (unsigned char)*cp);
+              break;
+            }
+        }
       else
-	{
-	  fprintf (stderr, "too short command sequence\n");
-	}
+        {
+          fprintf (stderr, "too short command sequence\n");
+        }
     }
 
   fclose (fp);

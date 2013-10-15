@@ -53,15 +53,15 @@
 #define FIOPROG    "./fio"
 #define WBUFSZ     4096
 
-static GIOChannel  *rchannel          = NULL;	 /* read from child I/O channel */
-static GIOChannel  *wchannel          = NULL;	 /* write to child I/O channel */
-static guint        rsource_id        = 0;	 /* read channel event source id */
-static guint        wsource_id        = 0;	 /* write channel event source id */
-static guint        child_watch_id    = 0;	 /* watch on child process */
-static pid_t        child_pid         = -1;	 /* PID of a child process */
-static guchar       writebuf[WBUFSZ];		 /* write buffer */
-static guint        writebuf_tail     = 0;	 /* write buffer tail */
-static guint        writebuf_head     = 0;	 /* write buffer head */
+static GIOChannel  *rchannel          = NULL;      /* read from child I/O channel */
+static GIOChannel  *wchannel          = NULL;      /* write to child I/O channel */
+static guint        rsource_id        = 0;         /* read channel event source id */
+static guint        wsource_id        = 0;         /* write channel event source id */
+static guint        child_watch_id    = 0;         /* watch on child process */
+static pid_t        child_pid         = -1;        /* PID of a child process */
+static guchar       writebuf[WBUFSZ];              /* write buffer */
+static guint        writebuf_tail     = 0;         /* write buffer tail */
+static guint        writebuf_head     = 0;         /* write buffer head */
 static FIOCallbacks fiocb;
 
 static gboolean fio_read_event  (GIOChannel *channel, GIOCondition condition, gpointer user_data);
@@ -195,7 +195,7 @@ fio_open (const gchar *filename, const gchar *mode)
   for (i = 0; i < 2; i++) {
       rc = pipe ((void *)&fdpair[i]);
       if (rc == -1)
-	goto err_pipe;
+        goto err_pipe;
   }
 
   pid = fork ();
@@ -217,12 +217,12 @@ fio_open (const gchar *filename, const gchar *mode)
 
       rc = getrlimit (RLIMIT_NOFILE, &rlim);
       if (rc == -1 || rlim.rlim_max == 0)
-	nofile = 1024;
+        nofile = 1024;
       else
-	nofile = rlim.rlim_max;
+        nofile = rlim.rlim_max;
 
       for (fd = 3; fd < nofile; fd++)
-	close (fd);
+        close (fd);
 
       execlp ("fio", FIOPROG, mode, filename, NULL);
 
@@ -266,9 +266,9 @@ err_fork:
   for (i = 0; i < 2; i++)
     {
       if (fdpair[i].fdread >= 0)
-	close (fdpair[i].fdread);
+        close (fdpair[i].fdread);
       if (fdpair[i].fdwrite >= 0)
-	close (fdpair[i].fdwrite);
+        close (fdpair[i].fdwrite);
     }
 err_pipe:
   close (nullfd);
@@ -301,25 +301,25 @@ fio_write_event (GIOChannel *channel, GIOCondition condition, gpointer user_data
       g_debug ("fio_write_event: %lu bytes in buffer, %lu written", len, written);
 
       if (written > 0)
-	{
-	  g_assert (written <= len);
-	  writebuf_tail += written;
-	}
+        {
+          g_assert (written <= len);
+          writebuf_tail += written;
+        }
 
       if (status != G_IO_STATUS_NORMAL)
-	{
-	  if (status == G_IO_STATUS_AGAIN)
-	    {
-	      g_assert (err != NULL);
-	      g_error_free (err);
-	    }
-	  else
-	    {
-	      g_assert (err != NULL);
-	      g_error ("fio_write_event: error writing fd=%d: %s", g_io_channel_unix_get_fd (wchannel), err->message);
-	      g_error_free (err);
-	    }
-	}
+        {
+          if (status == G_IO_STATUS_AGAIN)
+            {
+              g_assert (err != NULL);
+              g_error_free (err);
+            }
+          else
+            {
+              g_assert (err != NULL);
+              g_error ("fio_write_event: error writing fd=%d: %s", g_io_channel_unix_get_fd (wchannel), err->message);
+              g_error_free (err);
+            }
+        }
     }
 
   /* Move tail and head to initial postion, so that the free space is seen. */
@@ -331,7 +331,7 @@ fio_write_event (GIOChannel *channel, GIOCondition condition, gpointer user_data
   if (written > 0)
     {
       if (fiocb.kick_writer != NULL)
-	(*fiocb.kick_writer) (fiocb.user_data);
+        (*fiocb.kick_writer) (fiocb.user_data);
     }
 
   /* disable write event if buffer is empty */
@@ -391,50 +391,50 @@ fio_write (const void *buf, gsize len)
        */
 
       if (written < len)
-	{
-	  gsize n, left;
+        {
+          gsize n, left;
 
-	  writebuf_tail = writebuf_head = 0;
+          writebuf_tail = writebuf_head = 0;
 
-	  /* calculate data left unwritten */
-	  left = len - written;
+          /* calculate data left unwritten */
+          left = len - written;
 
-	  /* calculate minimum between available buffer space and unwritten data */
-	  n = MIN (sizeof (writebuf), left);
+          /* calculate minimum between available buffer space and unwritten data */
+          n = MIN (sizeof (writebuf), left);
 
-	  if (n > 0)
-	    {
-	      if (n < left)
-		g_warning ("fio_write: buffer truncated");
-	      memcpy (writebuf, buf+written, n);
-	      writebuf_head += n;
-	    }
-	  else
-	    {
-	      g_warning ("fio_write: no buffer space");
-	    }
+          if (n > 0)
+            {
+              if (n < left)
+                g_warning ("fio_write: buffer truncated");
+              memcpy (writebuf, buf+written, n);
+              writebuf_head += n;
+            }
+          else
+            {
+              g_warning ("fio_write: no buffer space");
+            }
 
-	  if (wsource_id == 0)
-	    {
-	      wsource_id = g_io_add_watch (wchannel, G_IO_OUT, fio_write_event, NULL);
-	      g_assert (wsource_id > 0);
-	    }
-	}
+          if (wsource_id == 0)
+            {
+              wsource_id = g_io_add_watch (wchannel, G_IO_OUT, fio_write_event, NULL);
+              g_assert (wsource_id > 0);
+            }
+        }
 
       if (status != G_IO_STATUS_NORMAL)
-	{
-	  if (status == G_IO_STATUS_AGAIN)
-	    {
-	      g_assert (err != NULL);
-	      g_error_free (err);
-	    }
-	  else
-	    {
-	      g_error ("fio_write: error writing fd=%d: %s", g_io_channel_unix_get_fd (wchannel), err->message);
-	      g_error_free (err);
-	      written = -1;
-	    }
-	}
+        {
+          if (status == G_IO_STATUS_AGAIN)
+            {
+              g_assert (err != NULL);
+              g_error_free (err);
+            }
+          else
+            {
+              g_error ("fio_write: error writing fd=%d: %s", g_io_channel_unix_get_fd (wchannel), err->message);
+              g_error_free (err);
+              written = -1;
+            }
+        }
     }
   else
     {
@@ -444,21 +444,21 @@ fio_write (const void *buf, gsize len)
 
       /* try to align write buffer and free some space */
       if (sizeof (writebuf) - writebuf_head < len)
-	writebuf_align ();
+        writebuf_align ();
 
       n = MIN (sizeof (writebuf)-writebuf_head, len);
 
       if (n > 0)
-	{
-	  if (n < len)
-	    g_warning ("fio_write: buffer truncated");
-	  memcpy (writebuf+writebuf_head, buf, n);
-	  writebuf_head += n;
-	}
+        {
+          if (n < len)
+            g_warning ("fio_write: buffer truncated");
+          memcpy (writebuf+writebuf_head, buf, n);
+          writebuf_head += n;
+        }
       else
-	{
-	  g_warning ("fio_write: no buffer space");
-	}
+        {
+          g_warning ("fio_write: no buffer space");
+        }
 
       g_assert (wsource_id > 0);
 
@@ -487,25 +487,25 @@ fio_read_event (GIOChannel *channel, GIOCondition condition, gpointer user_data)
       g_assert ((err == NULL && status == G_IO_STATUS_NORMAL) || (err != NULL && status != G_IO_STATUS_NORMAL));
 
       if (len > 0)
-	{
-	  if (fiocb.read_data != NULL)
-	    (*fiocb.read_data) ((guchar *)buffer, len, fiocb.user_data);
-	}
+        {
+          if (fiocb.read_data != NULL)
+            (*fiocb.read_data) ((guchar *)buffer, len, fiocb.user_data);
+        }
 
       if (status != G_IO_STATUS_NORMAL)
-	{
-	  if (status == G_IO_STATUS_AGAIN)
-	    {
-	      g_assert (err != NULL);
-	      g_error_free (err);
-	    }
-	  else
-	    {
-	      g_assert (err != NULL);
-	      g_warning ("fio_read_event: error reading fd=%d: %s", g_io_channel_unix_get_fd (channel), err->message);
-	      g_error_free (err);
-	    }
-	}
+        {
+          if (status == G_IO_STATUS_AGAIN)
+            {
+              g_assert (err != NULL);
+              g_error_free (err);
+            }
+          else
+            {
+              g_assert (err != NULL);
+              g_warning ("fio_read_event: error reading fd=%d: %s", g_io_channel_unix_get_fd (channel), err->message);
+              g_error_free (err);
+            }
+        }
     }
 
   if (condition & (G_IO_ERR | G_IO_HUP))
@@ -513,17 +513,17 @@ fio_read_event (GIOChannel *channel, GIOCondition condition, gpointer user_data)
       /* Do not call io_error callback twice, if G_IO_ERR signaled.
        */
       if (condition & G_IO_ERR)
-	{
-	  g_debug ("fio_read_event: channel error fd=%d", g_io_channel_unix_get_fd (channel));
-	  if (fiocb.io_error != NULL)
-	    (*fiocb.io_error) (FALSE, fiocb.user_data);
-	}
+        {
+          g_debug ("fio_read_event: channel error fd=%d", g_io_channel_unix_get_fd (channel));
+          if (fiocb.io_error != NULL)
+            (*fiocb.io_error) (FALSE, fiocb.user_data);
+        }
       else
-	{
-	  g_debug ("fio_read_event: channel hangup fd=%d", g_io_channel_unix_get_fd (channel));
-	  if (fiocb.io_error != NULL)
-	    (*fiocb.io_error) (TRUE, fiocb.user_data);
-	}
+        {
+          g_debug ("fio_read_event: channel hangup fd=%d", g_io_channel_unix_get_fd (channel));
+          if (fiocb.io_error != NULL)
+            (*fiocb.io_error) (TRUE, fiocb.user_data);
+        }
     }
 
   return TRUE;

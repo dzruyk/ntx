@@ -49,13 +49,13 @@ client_os_command (const gchar *cmd)
   while (c < end)
     {
       while (g_ascii_isspace (*c))
-	c++;
+        c++;
 
       if (*c != '\0' && argc < NARGMAX)
-	argv[argc++] = c;
+        argv[argc++] = c;
 
       while (*c != '\0' && !g_ascii_isspace (*c))
-	c++;
+        c++;
 
       *c++ = '\0';
     }

@@ -9,14 +9,14 @@
 enum
 {
   NUL   = 0,
-  SE	= 240,
-  NOP	= 241,
-  SB	= 250,
-  WILL	= 251,
-  WONT	= 252,
-  DO	= 253,
-  DONT	= 254,
-  IAC	= 255
+  SE    = 240,
+  NOP   = 241,
+  SB    = 250,
+  WILL  = 251,
+  WONT  = 252,
+  DO    = 253,
+  DONT  = 254,
+  IAC   = 255
 };
 
 #define NVT_CALLBACKS(name) ((nvt_callbacks())->name)

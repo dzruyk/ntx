@@ -12,10 +12,10 @@ enum
   ESC = 0x1B
 };
 
-#define UTF8_MAX_CHAR	6
+#define UTF8_MAX_CHAR    6
 
-#define N_LETTERS	26
-#define N_FUNKEYS	27
+#define N_LETTERS        26
+#define N_FUNKEYS        27
 
 /* Ctrl+a, Ctrl+b, ..., Ctrl+z */
 static const gchar *ctrl_letter_codes[N_LETTERS] =
@@ -103,9 +103,9 @@ key_iconv_send (const gchar *buf, gsize len)
   if (cd == (iconv_t) -1)
     {
       if (errno == EINVAL)
-	g_error ("key_send: iconv_open can't convert %s to %s", from, to);
+        g_error ("key_send: iconv_open can't convert %s to %s", from, to);
       else
-	g_error ("key_send: iconv_open %s", strerror (errno));
+        g_error ("key_send: iconv_open %s", strerror (errno));
       return;
     }
 
@@ -118,9 +118,9 @@ key_iconv_send (const gchar *buf, gsize len)
   if (nconv == (size_t) -1)
     {
       if (errno == EILSEQ)
-	g_error ("key_send: iconv invalid byte sequence");
+        g_error ("key_send: iconv invalid byte sequence");
       else
-	g_error ("key_send: iconv %s", strerror (errno));
+        g_error ("key_send: iconv %s", strerror (errno));
     }
   else
     {
@@ -179,33 +179,33 @@ key_to_sequence (guint modifier_key, guint keyval, const gchar **res_buf, gsize 
   for (i = 0; i < G_N_ELEMENTS (mod_to_index); i++)
     {
       if (modifier_key == mod_to_index[i])
-	{
-	  const gchar **table = codetabs[i];
-	  g_assert (table != NULL);
-	  for (i = 0; i < G_N_ELEMENTS (keyvaltab); i++)
-	    {
-	      if (keyvaltab[i] == keyval)
-		{
-		  gint idx = index_to_codes[i];
-		  g_assert (idx >= 0 && idx < N_FUNKEYS);
-		  if (table[idx] != NULL)
-		    {
-		      len = strlen (table[idx]);
-		      str = table[idx];
-		    }
-		  break;
-		}
-	    }
-	  break;
-	}
+        {
+          const gchar **table = codetabs[i];
+          g_assert (table != NULL);
+          for (i = 0; i < G_N_ELEMENTS (keyvaltab); i++)
+            {
+              if (keyvaltab[i] == keyval)
+                {
+                  gint idx = index_to_codes[i];
+                  g_assert (idx >= 0 && idx < N_FUNKEYS);
+                  if (table[idx] != NULL)
+                    {
+                      len = strlen (table[idx]);
+                      str = table[idx];
+                    }
+                  break;
+                }
+            }
+          break;
+        }
     }
 
   if (len > 0)
     {
       if (res_len != NULL)
-	*res_len = len;
+        *res_len = len;
       if (res_buf != NULL)
-	*res_buf = str;
+        *res_buf = str;
       return TRUE;
     }
   else
@@ -247,7 +247,7 @@ key_send (const GdkEventKey *event)
 
   if (uc > 0
       && ((event->state & modifiers) == 0
-	  || (event->state & modifiers) == GDK_SHIFT_MASK))
+          || (event->state & modifiers) == GDK_SHIFT_MASK))
     {
       tmp[0] = '+';
       len = g_unichar_to_utf8 (uc, tmp+1) + 1;
@@ -258,39 +258,39 @@ key_send (const GdkEventKey *event)
   else
     {
       if (uc > 0)
-	{
-	  const gchar **table;
-	  guint keyval;
-	  gint idx;
+        {
+          const gchar **table;
+          guint keyval;
+          gint idx;
 
-	  if ((event->state & modifiers) == GDK_CONTROL_MASK)
-	    table = ctrl_letter_codes;
-	  else if ((event->state & modifiers) == GDK_MOD1_MASK)
-	    table = alt_letter_codes;
-	  else
-	    table = NULL;
+          if ((event->state & modifiers) == GDK_CONTROL_MASK)
+            table = ctrl_letter_codes;
+          else if ((event->state & modifiers) == GDK_MOD1_MASK)
+            table = alt_letter_codes;
+          else
+            table = NULL;
 
-	  if (table != NULL)
-	    {
+          if (table != NULL)
+            {
 
-	      gdk_keymap_translate_keyboard_state (NULL, event->hardware_keycode,
-						   event->state, 0,
-						   &keyval, NULL, NULL, NULL);
+              gdk_keymap_translate_keyboard_state (NULL, event->hardware_keycode,
+                                                   event->state, 0,
+                                                   &keyval, NULL, NULL, NULL);
 
-	      idx = gdk_keyval_to_unicode (keyval) - 'a';
+              idx = gdk_keyval_to_unicode (keyval) - 'a';
 
-	      if (idx >= 0 && idx < N_LETTERS)
-		{
-		  if (table[idx] != NULL)
-		    {
-		      len = strlen (table[idx]);
-		      str = table[idx];
-		    }
-		}
-	    }
-	}
+              if (idx >= 0 && idx < N_LETTERS)
+                {
+                  if (table[idx] != NULL)
+                    {
+                      len = strlen (table[idx]);
+                      str = table[idx];
+                    }
+                }
+            }
+        }
       else
-	key_to_sequence (event->state & modifiers, event->keyval, &str, &len);
+        key_to_sequence (event->state & modifiers, event->keyval, &str, &len);
     }
 
   if (len > 0)

@@ -56,11 +56,11 @@ font_selection_dialog (GtkWidget *widget, gpointer user_data)
     {
     case GTK_RESPONSE_OK:
       console_set_font_family (console,
-			       console_font_selection_dialog_get_family (dialog));
+                               console_font_selection_dialog_get_family (dialog));
       console_set_font_style (console,
-			      console_font_selection_dialog_get_style (dialog));
+                              console_font_selection_dialog_get_style (dialog));
       console_set_font_size (console,
-			     console_font_selection_dialog_get_size (dialog));
+                             console_font_selection_dialog_get_size (dialog));
       break;
 
     case GTK_RESPONSE_CANCEL:
@@ -158,10 +158,10 @@ console_color_change_dialog (GtkWidget *widget, gpointer user_data)
   console = CONSOLE (user_data);
 
   dialog = gtk_dialog_new_with_buttons (_("Console colors"), GTK_WINDOW (main_window),
-					GTK_DIALOG_DESTROY_WITH_PARENT,
-					GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					NULL);
+                                        GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                        NULL);
 
   gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 
@@ -263,10 +263,10 @@ console_size_change_dialog (GtkWidget *widget, gpointer user_data)
 
   dialog =
     gtk_dialog_new_with_buttons (_("Console size"), GTK_WINDOW (main_window),
-				 GTK_DIALOG_DESTROY_WITH_PARENT,
-				 GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-				 GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
-				 NULL);
+                                 GTK_DIALOG_DESTROY_WITH_PARENT,
+                                 GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                 GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                                 NULL);
 
   gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 
@@ -376,9 +376,9 @@ console_scroll_box_dialog (GtkWidget *widget, gpointer user_data)
 
   dialog =
     gtk_dialog_new_with_buttons (_("Console Commands"), GTK_WINDOW (main_window),
-				 GTK_DIALOG_DESTROY_WITH_PARENT,
-				 GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
-				 NULL);
+                                 GTK_DIALOG_DESTROY_WITH_PARENT,
+                                 GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                                 NULL);
 
   gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 
@@ -559,10 +559,10 @@ console_move_cursor_dialog (GtkWidget *widget, gpointer user_data)
 
   dialog =
     gtk_dialog_new_with_buttons (_("Cursor Position"), GTK_WINDOW (main_window),
-				 GTK_DIALOG_DESTROY_WITH_PARENT,
-				 GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
-				 GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-				 NULL);
+                                 GTK_DIALOG_DESTROY_WITH_PARENT,
+                                 GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                                 GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                 NULL);
 
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_REJECT);
 
@@ -633,9 +633,9 @@ clear_command_radio_button_toggled_cb (GtkWidget *widget, gpointer user_data)
       clear_display = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (widget), "clear-display"));
 
       if (clear_display)
-	info->clear_display = TRUE;
+        info->clear_display = TRUE;
       else
-	info->clear_display = FALSE;
+        info->clear_display = FALSE;
     }
 }
 
@@ -654,19 +654,19 @@ clear_mode_radio_button_toggled_cb (GtkWidget *widget, gpointer user_data)
       mode = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (widget), "erase-mode"));
 
       switch (mode)
-	{
-	case CONSOLE_ERASE_FROM_START:
-	  info->mode = CONSOLE_ERASE_FROM_START;
-	  break;
-	case CONSOLE_ERASE_TO_END:
-	  info->mode = CONSOLE_ERASE_TO_END;
-	  break;
-	case CONSOLE_ERASE_WHOLE:
-	  info->mode = CONSOLE_ERASE_WHOLE;
-	  break;
-	default:
-	  g_warn_if_reached ();
-	}
+        {
+        case CONSOLE_ERASE_FROM_START:
+          info->mode = CONSOLE_ERASE_FROM_START;
+          break;
+        case CONSOLE_ERASE_TO_END:
+          info->mode = CONSOLE_ERASE_TO_END;
+          break;
+        case CONSOLE_ERASE_WHOLE:
+          info->mode = CONSOLE_ERASE_WHOLE;
+          break;
+        default:
+          g_warn_if_reached ();
+        }
     }
 }
 
@@ -705,9 +705,9 @@ console_clear_dialog (GtkWidget *widget, gpointer user_data)
 
   dialog =
     gtk_dialog_new_with_buttons (_("Clear line or screen"), GTK_WINDOW (main_window),
-				 GTK_DIALOG_DESTROY_WITH_PARENT,
-				 GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
-				 NULL);
+                                 GTK_DIALOG_DESTROY_WITH_PARENT,
+                                 GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                                 NULL);
 
   gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
   gtk_widget_set_size_request (dialog, 250, 250);
@@ -777,12 +777,12 @@ console_clear_dialog (GtkWidget *widget, gpointer user_data)
   switch (res)
     {
       case GTK_RESPONSE_APPLY:
-	break;
+        break;
       case GTK_RESPONSE_REJECT:
       case GTK_RESPONSE_DELETE_EVENT:
-	break;
+        break;
       default:
-	g_warn_if_reached ();
+        g_warn_if_reached ();
     }
 
   gtk_widget_destroy (dialog);
@@ -855,7 +855,7 @@ console_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_da
       modifiers = gtk_accelerator_get_default_mod_mask ();
 
       if ((event->state & modifiers) != 0 &&
-	  (event->state & modifiers) != GDK_SHIFT_MASK)
+          (event->state & modifiers) != GDK_SHIFT_MASK)
         {
           if ((event->state & modifiers) == GDK_CONTROL_MASK)
             {
@@ -884,7 +884,7 @@ console_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_da
             default:
               uc = gdk_keyval_to_unicode (event->keyval);
               if (g_unichar_isprint (uc) || g_unichar_iscntrl (uc))
-        	console_put_char (console, uc);
+                console_put_char (console, uc);
               break;
             }
         }
@@ -909,7 +909,7 @@ struct
   const gchar *name;
   ConsoleCursorShape shape;
 } cursor_list[] = {
-      { "default",	CONSOLE_CURSOR_DEFAULT },
+      { "default",        CONSOLE_CURSOR_DEFAULT },
       { "invisible", CONSOLE_CURSOR_INVISIBLE },
       { "underscore", CONSOLE_CURSOR_UNDERSCORE },
       { "lower third", CONSOLE_CURSOR_LOWER_THIRD },
@@ -1012,7 +1012,7 @@ main (int argc, char *argv[])
       group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 
       if (cursor_list[i].shape == CONSOLE_CURSOR_DEFAULT)
-	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
 
       g_object_set_data (G_OBJECT (item), "cursor-shape", GINT_TO_POINTER (cursor_list[i].shape));
       g_signal_connect (item, "activate", G_CALLBACK (console_cursor_shape_change), console);
@@ -1039,7 +1039,7 @@ main (int argc, char *argv[])
       g_signal_connect (item, "activate", G_CALLBACK (console_cursor_timer_change), console);
 
       if (blink_list[i].timer == CONSOLE_BLINK_MEDIUM)
-	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
 
       gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
     }

@@ -19,18 +19,18 @@ read_data_cb (guchar *buf, gsize len, gpointer user_data)
   if (len > 2 && buf[len-1] == '\n')
     {
       if (buf[len-2] == 0x1b)
-	{
-	  if (buf[0] == '1' && buf[1] != 0x1b)
-	    fio_write ("r64\n", 4);
-	  else
-	    {
-	      g_debug ("read_data_cb: done reading! buf[0]=%d", buf[0]);
-	      fio_close ();
-	      quit = 1;
-	    }
-	}
+        {
+          if (buf[0] == '1' && buf[1] != 0x1b)
+            fio_write ("r64\n", 4);
+          else
+            {
+              g_debug ("read_data_cb: done reading! buf[0]=%d", buf[0]);
+              fio_close ();
+              quit = 1;
+            }
+        }
       else
-	g_warning ("read_data_cb: wrong data recieved %02x %02x len=%d", buf[len-1], buf[len-2], (int)len);
+        g_warning ("read_data_cb: wrong data recieved %02x %02x len=%d", buf[len-1], buf[len-2], (int)len);
     }
 }
 
