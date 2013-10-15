@@ -194,7 +194,7 @@ console_font_selection_get_property (GObject	   *object,
   switch (prop_id)
     {
     case PROP_FONT:
-      g_value_set_string (value, console_font_selection_get_family (fontsel)); 
+      g_value_set_string (value, console_font_selection_get_family (fontsel));
       break;
 
     case PROP_STYLE:
@@ -202,7 +202,7 @@ console_font_selection_get_property (GObject	   *object,
       break;
 
     case PROP_SIZE:
-      g_value_set_int (value, console_font_selection_get_size (fontsel)); 
+      g_value_set_int (value, console_font_selection_get_size (fontsel));
       break;
 
     default:
@@ -221,7 +221,7 @@ console_font_selection_get_size (ConsoleFontSelection *fontsel)
   return fontsel->size;
 }
 
-const gchar *
+const gchar*
 console_font_selection_get_family (ConsoleFontSelection *fontsel)
 {
   g_return_val_if_fail (fontsel != NULL, NULL);
@@ -233,7 +233,7 @@ console_font_selection_get_family (ConsoleFontSelection *fontsel)
     return NULL;
 }
 
-const gchar *
+const gchar*
 console_font_selection_get_style (ConsoleFontSelection *fontsel)
 {
   g_return_val_if_fail (fontsel != NULL, NULL);
@@ -261,7 +261,7 @@ size_list_set_cursor_to_nearest (ConsoleFontSelection *fontsel, gint size)
 	  path = gtk_tree_path_new_from_indices (i, -1);
 	  gtk_tree_view_set_cursor (GTK_TREE_VIEW (fontsel->size_list), path, NULL, FALSE);
 	  gtk_tree_path_free (path);
-	  
+
 	  break;
 	}
     }
@@ -612,7 +612,7 @@ insert_face (const gchar *family,
 
   if (list == NULL)
     {
-      list = g_slist_append (NULL, g_strdup (style)); 
+      list = g_slist_append (NULL, g_strdup (style));
       g_hash_table_insert (table, g_strdup (family), list);
     }
   else
@@ -631,7 +631,7 @@ insert_face (const gchar *family,
 
       if (iter == NULL)
 	{
-	  list = g_slist_append (list, g_strdup (style)); 
+	  list = g_slist_append (list, g_strdup (style));
 	  g_hash_table_replace (table, g_strdup (family), list);
 	}
     }
@@ -779,7 +779,7 @@ console_font_selection_init (ConsoleFontSelection *fontsel)
   g_signal_connect (G_OBJECT (fontsel->family_list),
 		    "destroy", G_CALLBACK (family_list_destroy_cb), fontsel);
   g_signal_connect (G_OBJECT (fontsel->family_list),
-		    "map", G_CALLBACK (family_list_map_cb), fontsel); 
+		    "map", G_CALLBACK (family_list_map_cb), fontsel);
   g_signal_connect (G_OBJECT (fontsel->family_list),
 		    "row-activated", G_CALLBACK (list_row_activated_cb), fontsel);
 
@@ -833,7 +833,7 @@ console_font_selection_finalize (GObject *object)
   G_OBJECT_CLASS (console_font_selection_parent_class)->finalize (object);
 }
 
-GtkWidget *
+GtkWidget*
 console_font_selection_new (void)
 {
   ConsoleFontSelection *fontsel;
@@ -891,7 +891,7 @@ console_font_selection_dialog_init (ConsoleFontSelectionDialog *dialog)
   gtk_box_pack_start (GTK_BOX (vbox), dialog->fontsel, TRUE, TRUE, 0);
 }
 
-GtkWidget *
+GtkWidget*
 console_font_selection_dialog_new ()
 {
   GtkWidget *dial;
@@ -939,7 +939,7 @@ console_font_selection_dialog_get_size (ConsoleFontSelectionDialog *dialog)
   return console_font_selection_get_size (CONSOLE_FONT_SELECTION (dialog->fontsel));
 }
 
-const gchar *
+const gchar*
 console_font_selection_dialog_get_family (ConsoleFontSelectionDialog *dialog)
 {
 
@@ -949,7 +949,7 @@ console_font_selection_dialog_get_family (ConsoleFontSelectionDialog *dialog)
   return console_font_selection_get_family (CONSOLE_FONT_SELECTION (dialog->fontsel));
 }
 
-const gchar *
+const gchar*
 console_font_selection_dialog_get_style (ConsoleFontSelectionDialog *dialog)
 {
 

@@ -397,7 +397,7 @@ console_scroll_box_dialog (GtkWidget *widget, gpointer user_data)
   gtk_container_set_border_width (GTK_CONTAINER (table), 6);
   gtk_table_set_col_spacings (GTK_TABLE (table), 6);
   gtk_table_set_row_spacings (GTK_TABLE (table), 6);
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), table, FALSE, FALSE, 0); 
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), table, FALSE, FALSE, 0);
 
   radio_button = gtk_radio_button_new_with_label (NULL, _("Scroll up"));
   group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio_button));
@@ -578,7 +578,7 @@ console_move_cursor_dialog (GtkWidget *widget, gpointer user_data)
   gtk_container_set_border_width (GTK_CONTAINER (table), 6);
   gtk_table_set_col_spacings (GTK_TABLE (table), 6);
   gtk_table_set_row_spacings (GTK_TABLE (table), 6);
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), table, FALSE, FALSE, 0); 
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), table, FALSE, FALSE, 0);
 
   label = gtk_label_new_with_mnemonic (_("x:"));
   gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);

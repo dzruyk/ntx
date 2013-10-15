@@ -24,7 +24,7 @@ gboolean client_in_telnet_mode ();
  * These are used only when TELNET mode is off.
  */
 
-/* 
+/*
  * This function decodes and sends a key event `event' to channel
  */
 void key_send      (const GdkEventKey *event);

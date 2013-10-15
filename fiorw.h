@@ -6,21 +6,21 @@
  * DESCRIPTION
  *   This structure contains the following fields:
  *
- *   user_data  
+ *   user_data
  *                  Arbitrary pointer passed to each callback function.
- *   read_data  
+ *   read_data
  *                  This is set to an address of a user function which will be
  *                  called each time data received from fio(1) coprocess.
- *   kick_writer  
+ *   kick_writer
  *                  This is set to an address of a user function which will be
  *                  called each time write buffer space increases. User can call
  *                  fio_write_buffer_space() to get idea how much data he can
  *                  safely write.
- *   io_error  
+ *   io_error
  *                  This is set to an address of a user function which will be
  *                  called when I/O error signaled on the channel or fio(1)
  *                  coprocess closed its pipe end.
- *   coproc_exited  
+ *   coproc_exited
  *                  This is set to an address of a user function which will be
  *                  called when coprocess exited. The exit code or signal number
  *                  is passed in \fIcode\fP. If the coprocess was terminated by

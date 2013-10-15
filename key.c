@@ -152,14 +152,14 @@ key_to_sequence (guint modifier_key, guint keyval, const gchar **res_buf, gsize 
       func_codes, ctrl_func_codes, alt_func_codes, shift_func_codes
     };
   static const gint keyvaltab[] =
-    { 
+    {
       GDK_Escape, GDK_F1, GDK_F2, GDK_F3, GDK_F4, GDK_F5,
       GDK_F6, GDK_F7, GDK_F8, GDK_F9, GDK_F10, GDK_F11,
       GDK_F12, GDK_Up, GDK_KP_Up, GDK_Down, GDK_KP_Down, GDK_Left,
       GDK_KP_Left, GDK_Right, GDK_KP_Right, GDK_Insert, GDK_KP_Insert, GDK_Home,
       GDK_KP_Home, GDK_Page_Up, GDK_KP_Page_Up, GDK_Page_Down, GDK_KP_Page_Down, GDK_End,
       GDK_KP_End, GDK_Delete, GDK_KP_Delete, GDK_Tab, GDK_Return, GDK_KP_Enter,
-      GDK_BackSpace 
+      GDK_BackSpace
     };
   static const gint index_to_codes[] =
     {
@@ -269,7 +269,7 @@ key_send (const GdkEventKey *event)
 	    table = alt_letter_codes;
 	  else
 	    table = NULL;
-	  
+
 	  if (table != NULL)
 	    {
 

@@ -426,7 +426,7 @@ client_mouse_disable ()
   gui_mouse_disable ();
 }
 
-static gchar *
+static gchar*
 get_temporary_directory (gchar *buf, gsize bufsz)
 {
   gchar dirname[PATH_MAX];
@@ -808,23 +808,23 @@ client_do_input (guchar *buf, gsize len)
 	      ios_started = TRUE;
 	      state = S_0;
 	      break;
-	    
+
 	    case C_STOP_IOS:
 	      DEBUG ("stopping IOS...");
 	      ios_started = FALSE;
 	      state = S_0;
 	      break;
-	    
+
 	    case C_GET_VERSION:
 	      client_get_version ();
 	      state = S_0;
 	      break;
-	    
+
 	    case C_KEYBOARD_LOCK:
 	      client_keyboard_lock ();
 	      state = S_0;
 	      break;
-	    
+
 	    case C_KEYBOARD_UNLOCK:
 	      client_keyboard_unlock ();
 	      state = S_0;
@@ -854,7 +854,7 @@ client_do_input (guchar *buf, gsize len)
 	      client_set_cursor_fullblock ();
 	      state = S_0;
 	      break;
-	    
+
 	    case C_SET_CURSOR_HALFBLOCK:
 	      client_set_cursor_halfblock ();
 	      state = S_0;
@@ -874,7 +874,7 @@ client_do_input (guchar *buf, gsize len)
 	      client_get_cwd ();
 	      state = S_0;
 	      break;
-	  
+
 	    case C_FILE_CLOSE:
 	      client_file_close ();
 	      state = S_0;
@@ -923,7 +923,7 @@ client_do_input (guchar *buf, gsize len)
 	      client_change_color (FG_COLOR (c), BG_COLOR (c));
 	      state = S_0;
 	      break;
-	    
+
 	    case C_MOVE_CURSOR:
 	      param[paramlen++] = c;
 	      if (paramlen >= 2)
@@ -937,11 +937,11 @@ client_do_input (guchar *buf, gsize len)
 		  state = S_0;
 		}
 	      break;
-	    
+
 	    case C_OUTPUT_STRING:
 	      DEBUG (">> C_OUTPUT_STRING");
 	      break;
-	    
+
 	    case C_SCROLL_BOX_DOWN:
 	    case C_SCROLL_BOX_UP:
 	      param[paramlen++] = c;
@@ -972,7 +972,7 @@ client_do_input (guchar *buf, gsize len)
 		  state = S_0;
 		}
 	      break;
-	    
+
 	    case C_BELL:
 	      param[paramlen++] = c;
 	      if (paramlen >= 1)
@@ -982,7 +982,7 @@ client_do_input (guchar *buf, gsize len)
 		  state = S_0;
 		}
 	      break;
-	    
+
 	    case C_FILE_EXISTS:
 	      if (c != NUL)
 		{
@@ -997,7 +997,7 @@ client_do_input (guchar *buf, gsize len)
 		  state = S_0;
 		}
 	      break;
-	    
+
 	    case C_FILE_OPEN:
 	      if (c != NUL)
 		{
@@ -1015,16 +1015,16 @@ client_do_input (guchar *buf, gsize len)
 		  filename = (const gchar *)param + 1;
 
 		  client_file_open (filename, how);
-		  
+
 		  paramlen = 0;
 		  state = S_0;
 		}
 	      break;
-	    
+
 	    case C_FILE_NEWLINE:
 	      DEBUG (">> C_FILE_NEWLINE");
 	      break;
-	    
+
 	    case C_FILE_WRITE_STRING:
 	    case C_FILE_BINARY_WRITE:
 	      /* There is no much difference between binary and string writes from
@@ -1059,7 +1059,7 @@ client_do_input (guchar *buf, gsize len)
 		}
 
 	      break;
-	    
+
 	    case C_FILE_READ_STRING:
 	    case C_FILE_BINARY_READ:
 	      /* Reading file is similar to both binary and string conventions.
@@ -1080,12 +1080,12 @@ client_do_input (guchar *buf, gsize len)
 
 		  if (file_opened)
 		    fio_write (param, paramlen);
-		  
+
 		  state = S_0;
 		  paramlen = 0;
 		}
 	      break;
-	    
+
 	    case C_OS_COMMAND:
 	      if (c != NUL)
 		{
@@ -1102,11 +1102,11 @@ client_do_input (guchar *buf, gsize len)
 		  paramlen = 0;
 		}
 	      break;
-	    
+
 	    case C_LOCAL_ACTION:
 	      DEBUG (">> C_LOCAL_ACTION");
 	      break;
-	    
+
 	    case C_ARE_YOU_ALIVE:
 	      client_are_you_alive ();
 	      paramlen = 0;

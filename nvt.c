@@ -63,7 +63,7 @@ debug (const char *fmt, ...)
   va_end (ap);
 }
 
-NvtCallbacks *
+NvtCallbacks*
 nvt_callbacks (void)
 {
   return &callbacks;
@@ -95,7 +95,7 @@ nvt_subneg (gint cmd, guchar *arg, gsize len)
   status = g_io_channel_write_chars (channel, (gchar *)buf, n, &written, &err);
 
   g_assert ((status != G_IO_STATUS_ERROR && err == NULL) || (status == G_IO_STATUS_ERROR && err != NULL));
-	
+
   if (err != NULL)
     {
       if (callbacks.error != NULL)
@@ -126,7 +126,7 @@ nvt_cmd (gint cmd, gint opcode)
   status = g_io_channel_write_chars (channel, (gchar *)buf, len, &written, &err);
 
   g_assert ((status != G_IO_STATUS_ERROR && err == NULL) || (status == G_IO_STATUS_ERROR && err != NULL));
-	
+
   if (err != NULL)
     {
       if (callbacks.error != NULL)
@@ -192,7 +192,7 @@ nvt_read (GIOChannel *channel, GIOCondition cond, gpointer user_data)
       switch (status)
 	{
 	case G_IO_STATUS_NORMAL:
-	  
+
 	  //g_debug ("read %d bytes", len);
 
 	  n = 0;

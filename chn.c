@@ -9,7 +9,7 @@ ChannelFuncs channel_funcs;
 
 static ChannelFuncs *vfuncs = &channel_funcs;
 
-const gchar *
+const gchar*
 chn_get_name ()
 {
   if (vfuncs->get_name != NULL)

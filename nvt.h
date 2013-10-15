@@ -29,16 +29,16 @@ typedef struct _NvtCallbacks
 
   /* Telnet command with opcode (opcode is set to -1 if not applicable). */
   void (*command)        (gint command, gint opcode, gpointer user_data);
-  
+
   /* Subnegotiated option agruments sent by the remote side. */
   void (*subnegotiation) (gint opcode, const guchar *arg, gint len, gpointer user_data);
- 
+
   /* Notify user that the connection was established. */
   void (*connected)      (gpointer user_data);
 
   /* Disconnect notification. error can be NULL. */
   void (*disconnect)     (const GError *error, gpointer user_data);
-  
+
   /* Error notification. error can be NULL. */
   void (*error)          (const GError *error, gpointer user_data);
 

@@ -24,7 +24,7 @@
  *   to fio(1) coprocess through fio_write(3).
  * EXAMPLES
  *   The following example demonstrates a typical usage of this API:
- * 
+ *
  *     FIOCallbacks callbacks;
  *     ...
  *     memset (&callbacks, 0, sizeof (callbacks));
@@ -37,12 +37,12 @@
  *
  *     fio_open_readonly ("/etc/passwd");
  *     fio_write ("R64\n", 4);
- *     
+ *
  *     g_main_loop_run ();
  *
  *     fio_close ();
  *     return 0;
- *   
+ *
  *   For the more elaborate example see \fItest_fio.c\fP file.
  * SEE ALSO
  *   fio(1), fio_set_callbacks(3), fio_open_readonly(3), fio_open_writeonly(3),
@@ -441,7 +441,7 @@ fio_write (const void *buf, gsize len)
       gsize n;
 
       g_assert (writebuf_head > writebuf_tail);
-	  
+
       /* try to align write buffer and free some space */
       if (sizeof (writebuf) - writebuf_head < len)
 	writebuf_align ();

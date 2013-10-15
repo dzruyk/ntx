@@ -8,15 +8,15 @@
 #define DEFAULT_MONOSPACE_FAMILY "sans mono"
 #define DEFAULT_MONOSPACE_STYLE  "regular"
 
-/* This converts FontConfig slant FC_SLANT_xxx to string. 
+/* This converts FontConfig slant FC_SLANT_xxx to string.
  */
-static const gchar *
+static const gchar*
 slant_to_string (gint slant)
 {
   switch (slant)
     {
     case FC_SLANT_ITALIC:
-      return "Italic";     
+      return "Italic";
     case FC_SLANT_OBLIQUE:
       return "Oblique";
     case FC_SLANT_ROMAN:
@@ -29,7 +29,7 @@ slant_to_string (gint slant)
 
 /* This converts FontConfig weight FC_WEIGHT_xxx to string.
  */
-static const gchar *
+static const gchar*
 weight_to_string (gint weight)
 {
   switch (weight)
@@ -64,13 +64,13 @@ weight_to_string (gint weight)
 
 /* This converts FontConfig FC_WIDTH_xxx to string.
  */
-static const gchar *
+static const gchar*
 width_to_string (gint width)
 {
   switch (width)
     {
     case FC_WIDTH_ULTRACONDENSED:
-      return "Ultracondensed"; 
+      return "Ultracondensed";
     case FC_WIDTH_EXTRACONDENSED:
       return "Extracondensed";
     case FC_WIDTH_CONDENSED:
@@ -105,7 +105,7 @@ fc_finalize ()
   FcFini ();
 }
 
-gchar *
+gchar*
 fc_synthesize_style (gint width, gint weight, gint slant)
 {
   gchar *s = NULL;
@@ -318,7 +318,7 @@ fc_get_font_file (const gchar  *family,
   if (scalable)
     FcPatternAddBool (pat, FC_SCALABLE, FcTrue);
 
-  /* Set default pattern for the match. */  
+  /* Set default pattern for the match. */
   FcConfigSubstitute (NULL, pat, FcMatchPattern);
   FcDefaultSubstitute (pat);
 

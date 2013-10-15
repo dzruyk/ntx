@@ -39,38 +39,38 @@
  * COMMANDS
  *   The following commands are implemented in the fio:
  *
- *   'w' str <lf>  
+ *   'w' str <lf>
  *                   Writes the binary string \fIstr\fP to the file as if it was
  *                   written by the write(2) system call.
  *                   The binary string is processed in the way described in UNSTUFFING
  *                   subsection before being written to the file.
  *                   It prints nothing to standard output.
- *                   
- *   'W' str <lf>  
+ *
+ *   'W' str <lf>
  *                   Writes a printable string \fIstr\fP to file as if it was
  *                   written by the write(2) system call.
  *                   The printable string is not processed and left intact.
  *                   It prints nothing to standard output.
  *
- *   'r' len <lf>  
+ *   'r' len <lf>
  *                   Reads a binary string of \fIlen\fP bytes from the file as if
  *                   it was read by the read(2) system call and prints
  *                   it to standard output. The binary string read is processed in
  *                   the way described in STUFFING subsection. Byte sequence
  *
  *                    '1' str <esc> <lf>
- *                   
+ *
  *                   is printed to standard output on success, where \fCstr\fP is
  *                   a sequence of read and stuffed bytes; on failure byte sequence
  *
  *                    '0' <esc> <lf>
  *
  *                   is printed to standard output.
- *   'R' len <lf>  
+ *   'R' len <lf>
  *                   Reads a printable string of \fIlen\fP bytes from file as if
  *                   it was read by the read(2) system call and prints it to
  *                   standard output. The string read is not processed and left
- *                   intact. Byte sequence 
+ *                   intact. Byte sequence
  *
  *                    '1' str <esc> <lf>
  *
@@ -226,11 +226,11 @@ main (int argc, char *argv[])
 		  for (i = 0; i < nbytes; i++)
 		    {
 		      c = buf[i];
-		      
+
 		      if (c == NUL || c == SOH || c == LF || c == CR || c == ESC)
 			{
 			  *p++ = 0x1;
-			  *p++ = c + 0x64; 
+			  *p++ = c + 0x64;
 			}
 		      else
 			*p++ = c;
@@ -254,15 +254,15 @@ main (int argc, char *argv[])
 	      fwrite (p, 1, nbytes, stdout);
 	      fputc (ESC, stdout);
 	      fputc (LF, stdout);
-	      
+
 	      if (ferror (stdout) || fflush (stdout) != 0)
 		{
 		  fprintf (stderr, "error writing out\n");
 		  clearerr (stdout);
 		}
-	      
+
 	      break;
-	    
+
 	    case 'w':
 	    case 'W':
 
@@ -277,7 +277,7 @@ main (int argc, char *argv[])
 			  *p++ = c[1] - 0x64;
 			  c += 2;
 			}
-		      else 
+		      else
 			{
 			  *p++ = *c;
 			  c += 1;

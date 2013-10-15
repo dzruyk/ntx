@@ -12,7 +12,7 @@
 
 static void
 input_cb (guchar *data, gsize len, gpointer user_data)
-{ 
+{
    client_do_input (data, len);
 }
 

@@ -197,12 +197,12 @@ chn_telnet_subnegotiation_cb (gint opcode, const guchar *arg, gint len, gpointer
 
   if (opcode == OPT_TERMINAL_TYPE)
     {
-      if (len >= 1 && arg[0] == 1) 
+      if (len >= 1 && arg[0] == 1)
 	{
 	  guchar arg[] = { '\0', 't', 'e', 'l', 'n', 'e', 't' };
-	  
+
 	  g_debug ("SB -> SEND terminal type");
-	  
+
 	  nvt_subneg (OPT_TERMINAL_TYPE, arg, sizeof (arg));
 	}
     }
@@ -220,7 +220,7 @@ chn_telnet_input_bytes_cb (guchar *data, gint len, gpointer user_data)
 void
 chn_telnet_error_cb (const GError *error, gpointer user_data)
 {
-  
+
   if (channel_callbacks.error != NULL)
     (*channel_callbacks.error) (error, channel_callbacks.user_data);
 }
