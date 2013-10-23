@@ -38,7 +38,7 @@ struct _ConsoleFontSelectionClass
   GtkVBoxClass parent_class;
 };
 
-GtkWidget* console_font_selection_new ();
+GtkWidget*   console_font_selection_new          ();
 
 gint         console_font_selection_get_size     (ConsoleFontSelection    *fontsel);
 

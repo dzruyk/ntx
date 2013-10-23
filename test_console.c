@@ -833,7 +833,32 @@ console_text_selected_event_cb (GtkWidget *widget, const gchar *s, gpointer user
 static void
 console_text_pasted_event_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
 {
+  Console *console = (Console*) widget;
+  gchar *p;
+  gint len;
+
   g_debug ("text-pasted event callback: get string %s", s);
+  len = g_utf8_strlen (s, -1);
+  p = s;
+
+  while (len-- > 0)
+    {
+      gunichar ch;
+      ch = g_utf8_get_char (p);
+      switch (ch)
+        {
+          case '\n':
+          case '\r':
+            console_put_char (console, '\r');
+            console_put_char (console, '\n');
+            break;
+          default:
+            console_put_char (console, ch);
+            break;
+        }
+
+      p = g_utf8_next_char (p);
+    }
 }
 
 static gboolean

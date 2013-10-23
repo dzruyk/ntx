@@ -202,8 +202,7 @@ gboolean
 try_get_pasted_text (Console *console)
 {
   GtkClipboard *clipboard;
-  gchar *s, *p;
-  gint len;
+  gchar *s;
 
   clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
 
@@ -212,28 +211,6 @@ try_get_pasted_text (Console *console)
     return FALSE;
 
   g_debug ("get \"%s\" from clipboard", s);
-
-  len = g_utf8_strlen (s, -1);
-  p = s;
-
-  while (len-- > 0)
-    {
-      gunichar ch;
-      ch = g_utf8_get_char (p);
-      switch (ch)
-        {
-          case '\n':
-          case '\r':
-            console_put_char (console, '\r');
-            console_put_char (console, '\n');
-            break;
-          default:
-            console_put_char (console, ch);
-            break;
-        }
-
-      p = g_utf8_next_char (p);
-    }
 
   g_signal_emit (console, console_signals[TEXT_PASTED], 0, s);
 
