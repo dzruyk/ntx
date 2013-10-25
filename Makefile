@@ -4,8 +4,8 @@ CFLAGS = -Wall -O0 -g -D_XOPEN_SOURCE=600 -DG_ENABLE_DEBUG -D_CLIENT_DEBUG `pkg-
 #CFLAGS = -Wall -O2 -D_XOPEN_SOURCE=600 `pkg-config --cflags gtk+-x11-2.0`
 CFLAGS += -I/usr/include/fontconfig
 LIBS = `pkg-config --libs gtk+-x11-2.0` -lfreetype -lfontconfig
-OBJECTS = fc.o fontsel.o console.o nvt.o client.o gui.o key.o chn.o \
-	  chn_telnet.o chn_echo.o chn_pty.o fiorw.o
+OBJECTS = fc.o fontsel.o console.o console_marshal.o nvt.o client.o gui.o key.o \
+	  chn.o chn_telnet.o chn_echo.o chn_pty.o fiorw.o
 HEADERS = internal.h nvt.h console.h
 BINARIES = ntx test_console test_fio test_spawn fio
 
@@ -17,6 +17,9 @@ fc.o: fc.c fc.h
 	$(COMPILE) -c -o $@ $<
 
 fontsel.o: fontsel.c fontsel.h
+	$(COMPILE) -c -o $@ $<
+
+console_marshal.o: console_marshal.c console_marshal.h
 	$(COMPILE) -c -o $@ $<
 
 console.o: console.c console.h
@@ -52,7 +55,7 @@ fiorw.o: fiorw.c fiorw.h
 ntx: main.c $(OBJECTS) $(HEADERS)
 	$(COMPILE) -o $@ main.c $(OBJECTS)
 
-test_console: test_console.c console.o fontsel.o fc.o
+test_console: test_console.c console.o console_marshal.o fontsel.o fc.o
 	$(COMPILE) -o $@ $^
 
 test_fio: CFLAGS += -D_GNU_SOURCE

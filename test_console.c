@@ -821,16 +821,18 @@ console_key_press_event2 (GtkWidget *widget, GdkEventKey *event, gpointer user_d
 
   g_debug ("console key press event");
 
-  return FALSE;
+  return TRUE;
 }
 
-static void
+static gboolean
 console_text_selected_event_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
 {
-  g_debug ("text-selected event callback: get string %s", s);
+  g_debug ("text-selected event callback: get string %s\n", s);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 console_text_pasted_event_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
 {
   Console *console = (Console*) widget;
@@ -859,6 +861,7 @@ console_text_pasted_event_cb (GtkWidget *widget, const gchar *s, gpointer user_d
 
       p = g_utf8_next_char (p);
     }
+  return FALSE;
 }
 
 static gboolean

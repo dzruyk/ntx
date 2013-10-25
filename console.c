@@ -7,6 +7,7 @@
 #include FT_CACHE_H
 
 #include "console.h"
+#include "console_marshal.h"
 #include "colors.h"
 #include "fc.h"
 
@@ -176,6 +177,7 @@ struct _ConsolePrivate {
 
 static void     console_class_init     (ConsoleClass   *klass);
 static void     console_init           (Console        *console);
+static gboolean console_text_selected    (Console *console, const gchar *str);
 static void     console_size_request   ();
 static void     console_size_allocate  ();
 static void     console_realize        ();
@@ -198,11 +200,12 @@ static void     invalidate_char_rect   (Console        *console,
 static void     invalidate_cursor_rect (Console        *console);
 static gboolean console_cursor_timer   (gpointer        user_data);
 
-gboolean
+static gboolean
 try_get_pasted_text (Console *console)
 {
   GtkClipboard *clipboard;
   gchar *s;
+  gboolean ret;
 
   clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
 
@@ -212,7 +215,7 @@ try_get_pasted_text (Console *console)
 
   g_debug ("get \"%s\" from clipboard", s);
 
-  g_signal_emit (console, console_signals[TEXT_PASTED], 0, s);
+  g_signal_emit (console, console_signals[TEXT_PASTED], 0, s, &ret);
 
   g_free (s);
 
@@ -317,13 +320,13 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
 {
   Console *console = (Console *) widget;
   ConsoleTextSelection *cs = &console->priv->text_selection;
-  GtkClipboard *clipboard;
 
   g_assert (widget == user_data);
 
   if (event->button == LEFT_MOUSE_BUTTON &&
       cs->x1 != -1 && cs->y1 != -1)
     {
+      gboolean ret;
       GString *s;
       /* end of selection */
 
@@ -331,11 +334,8 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
 
       s = get_selected_text (console);
 
-      g_signal_emit (console, console_signals[TEXT_SELECTED], 0, s->str);
+      g_signal_emit (console, console_signals[TEXT_SELECTED], 0, s->str, &ret);
       gtk_widget_queue_draw (widget);
-
-      clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
-      gtk_clipboard_set_text (clipboard, s->str, s->len);
 
       cs->x1 = cs->x2 = -1;
       cs->y1 = cs->y2 = -1;
@@ -596,23 +596,27 @@ console_class_init (ConsoleClass *klass)
                                                      CONSOLE_BLINK_STEADY, CONSOLE_BLINK_FAST,
                                                      CONSOLE_BLINK_MEDIUM,
                                                      G_PARAM_READWRITE));
+  klass->text_pasted = NULL;
+  klass->text_selected = console_text_selected;
   console_signals[TEXT_SELECTED] =
     g_signal_new ("text-selected",
                   G_TYPE_FROM_CLASS (object_class),
-                  G_SIGNAL_RUN_FIRST,
+                  G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ConsoleClass, text_selected),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__STRING,
-                  G_TYPE_NONE, 1,
+                  g_signal_accumulator_true_handled,
+                  NULL,
+                  g_cclosure_console_BOOLEAN__STRING,
+                  G_TYPE_BOOLEAN, 1,
                   G_TYPE_STRING);
   console_signals[TEXT_PASTED] =
     g_signal_new ("text-pasted",
                   G_TYPE_FROM_CLASS (object_class),
-                  G_SIGNAL_RUN_FIRST,
+                  G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ConsoleClass, text_pasted),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__STRING,
-                  G_TYPE_NONE, 1,
+                  g_signal_accumulator_true_handled,
+                  NULL,
+                  g_cclosure_console_BOOLEAN__STRING,
+                  G_TYPE_BOOLEAN, 1,
                   G_TYPE_STRING);
 
   object_class->finalize = console_finalize;
@@ -758,6 +762,17 @@ console_init (Console *console)
 
   /* allocate console screen buffer */
   resize_screen (console, CONSOLE_WIDTH_DEFAULT, CONSOLE_HEIGHT_DEFAULT);
+}
+
+static gboolean
+console_text_selected (Console *console, const gchar *str)
+{
+  GtkClipboard *clipboard;
+
+  clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
+  gtk_clipboard_set_text (clipboard, str, g_utf8_strlen(str, -1));
+
+  return TRUE;
 }
 
 static void
