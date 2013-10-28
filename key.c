@@ -36,7 +36,7 @@ static const gchar *alt_letter_codes[N_LETTERS] =
   };
 
 /* Function key sequences */
-static const gchar *func_codes[N_FUNKEYS] = 
+static const gchar *func_codes[N_FUNKEYS] =
   {
     /* Esc, F1, F2, F3, F4, F5, F6, F7 */
     "-1", "88", "89", "90", "91", "92", "93", "94",
@@ -294,6 +294,6 @@ key_send (const GdkEventKey *event)
     }
 
   if (len > 0)
-      key_iconv_send (str, len);
+    key_iconv_send (str, len);
 }
 

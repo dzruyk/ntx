@@ -3,6 +3,7 @@
 #include <cairo/cairo.h>
 #include <ft2build.h>
 #include <math.h>
+#include <string.h>
 #include FT_FREETYPE_H
 #include FT_CACHE_H
 
@@ -770,7 +771,7 @@ console_text_selected (Console *console, const gchar *str)
   GtkClipboard *clipboard;
 
   clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
-  gtk_clipboard_set_text (clipboard, str, g_utf8_strlen(str, -1));
+  gtk_clipboard_set_text (clipboard, str, strlen(str));
 
   return TRUE;
 }
@@ -1414,6 +1415,25 @@ cursor_is_visible_at (const ConsolePrivate *priv, gint x, gint y)
     return FALSE;
 }
 
+static gboolean
+console_gdk_rectangle_intersect (GdkRectangle *src1, GdkRectangle *src2)
+{
+  gint dest_x, dest_y;
+  gint dest_x2, dest_y2;
+
+  dest_x = MAX (src1->x, src2->x);
+  dest_y = MAX (src1->y, src2->y);
+  dest_x2 = MIN (src1->x + src1->width, src2->x + src2->width);
+  dest_y2 = MIN (src1->y + src1->height, src2->y + src2->height);
+
+  if (dest_x2 >= dest_x && dest_y2 >= dest_y)
+    {
+      return TRUE;
+    }
+  
+  return FALSE;
+}
+
 static void
 console_draw (GtkWidget *widget, GdkEventExpose *event)
 {
@@ -1492,7 +1512,7 @@ console_draw (GtkWidget *widget, GdkEventExpose *event)
               bg_color = &chr->bg_color;
 
               /* swap colors if character inside ConsoleTextSelection area */
-              if (gdk_rectangle_intersect(&rect, &selection, NULL))
+              if (console_gdk_rectangle_intersect(&rect, &selection))
                 {
                   ConsoleColor *tmp;
 

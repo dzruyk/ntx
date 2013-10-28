@@ -1,6 +1,7 @@
 #include <gdk/gdkkeysyms.h>
 #define GETTEXT_PACKAGE "gtk20"
 #include <glib/gi18n-lib.h>
+#include <string.h>
 
 #include "fontsel.h"
 #include "console.h"
@@ -25,6 +26,7 @@ static gulong console_button_press_id;
 static gulong console_button_release_id;
 static gulong console_motion_notify_id;
 static gulong console_key_press_id;
+static gulong console_text_pasted_id;
 static gulong console_scroll_id;
 
 extern gboolean key_press_event_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
@@ -85,6 +87,42 @@ console_scroll_event_cb (GtkWidget *widget, GdkEventScroll *event, gpointer user
     }
 
   return FALSE;
+}
+
+
+//FIXME: move me to another file
+static void
+utf8_buffer_send (const gchar *s)
+{
+  gchar tmp[64];
+  gchar *p;
+
+  g_assert(s != NULL);
+
+  p = s;
+
+  while (*p != '\0')
+    {
+      tmp[0] = '+';
+      //FIXME: WRITE ME!
+
+    }
+
+}
+
+static gboolean
+console_text_pasted_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
+{
+  g_debug ("text-pasted event callback %s", s);
+
+  if (client_in_telnet_mode ())
+    {
+      chn_write (s, strlen(s));
+    }
+  else
+    {
+      utf8_buffer_send (s);
+    }
 }
 
 static gboolean
@@ -302,6 +340,8 @@ gui_init (gint *argc, gchar ***argv)
     g_signal_connect (GTK_WIDGET (console), "button-release-event", G_CALLBACK (console_button_event_cb), NULL);
   console_scroll_id =
     g_signal_connect (GTK_WIDGET (console), "scroll-event", G_CALLBACK (console_scroll_event_cb), NULL);
+  console_text_pasted_id = 
+    g_signal_connect (GTK_WIDGET (console), "text-pasted", G_CALLBACK (console_text_pasted_cb), NULL);
 
   g_signal_handler_block (G_OBJECT (console), console_motion_notify_id);
   g_signal_handler_block (G_OBJECT (console), console_button_press_id);
