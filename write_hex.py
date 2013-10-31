@@ -13,5 +13,9 @@ class Unbuffered:
         return getattr(self.stream.attr)
 
 while True:
-    a = sys.stdin.readline().rstrip("\n").rstrip("\r")
+    a = sys.stdin.readline()
+    if a == "":
+        break
+    a = a.rstrip("\n").rstrip("\r")
     sys.stdout.write(a.decode("hex"))
+    sys.stdout.flush()

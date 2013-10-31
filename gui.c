@@ -115,7 +115,7 @@ utf8_buffer_send (const gchar *s)
       tmp[len] = '\0';
       key_iconv_send (tmp, len);
 
-      g_utf8_next_char (p);
+      p = g_utf8_next_char (p);
     }
 }
 
