@@ -87,7 +87,7 @@ static const gchar *shift_func_codes[N_FUNKEYS] =
     NULL, NULL, NULL
   };
 
-static void
+void
 key_iconv_send (const gchar *buf, gsize len)
 {
   const char *from = "utf8", *to = "cp866";

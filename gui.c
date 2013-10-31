@@ -94,20 +94,29 @@ console_scroll_event_cb (GtkWidget *widget, GdkEventScroll *event, gpointer user
 static void
 utf8_buffer_send (const gchar *s)
 {
-  gchar tmp[64];
   gchar *p;
 
-  g_assert(s != NULL);
+  g_assert (s != NULL);
+  g_assert (g_utf8_validate (s, -1, NULL));
 
   p = s;
 
   while (*p != '\0')
     {
+      gchar tmp[64];
+      gint len;
+      gunichar ch;
+
+      ch = g_utf8_get_char (p);
+
       tmp[0] = '+';
-      //FIXME: WRITE ME!
 
+      len = g_unichar_to_utf8 (ch, tmp + 1) + 1;
+      tmp[len] = '\0';
+      key_iconv_send (tmp, len);
+
+      g_utf8_next_char (p);
     }
-
 }
 
 static gboolean
@@ -117,10 +126,12 @@ console_text_pasted_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
 
   if (client_in_telnet_mode ())
     {
+      g_debug("text-pasted in telnet mode");
       chn_write (s, strlen(s));
     }
   else
     {
+      g_debug("text-pasted in IOS mode");
       utf8_buffer_send (s);
     }
 }

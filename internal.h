@@ -27,14 +27,19 @@ gboolean client_in_telnet_mode ();
 /*
  * This function decodes and sends a key event `event' to channel
  */
-void key_send      (const GdkEventKey *event);
+void key_send       (const GdkEventKey *event);
+
+/*
+ *
+ */
+void key_iconv_send (const gchar *buf, gsize len);
 
 /*
  * This function sends the key code `keycode' to channel.
  *
  * See gdk/gdkkeysyms.h for available values.
  */
-void key_send_code (gint keycode);
+void key_send_code  (gint keycode);
 
 #define key_send_page_down()      key_send_code (GDK_Page_Down)
 #define key_send_page_up()        key_send_code (GDK_Page_Up)
