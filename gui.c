@@ -89,8 +89,6 @@ console_scroll_event_cb (GtkWidget *widget, GdkEventScroll *event, gpointer user
   return FALSE;
 }
 
-
-//FIXME: move me to another file
 static void
 utf8_buffer_send (const gchar *s)
 {
@@ -122,16 +120,14 @@ utf8_buffer_send (const gchar *s)
 static gboolean
 console_text_pasted_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
 {
-  g_debug ("text-pasted event callback %s", s);
-
   if (client_in_telnet_mode ())
     {
-      g_debug("text-pasted in telnet mode");
+      g_debug("text-pasted in telnet mode %s", s);
       chn_write (s, strlen(s));
     }
   else
     {
-      g_debug("text-pasted in IOS mode");
+      g_debug("text-pasted in IOS mode %s", s);
       utf8_buffer_send (s);
     }
 }
