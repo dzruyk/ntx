@@ -27,43 +27,43 @@ gboolean client_in_telnet_mode ();
 /*
  * This function decodes and sends a key event `event' to channel
  */
-void key_send       (const GdkEventKey *event);
+void key_send                  (const GdkEventKey *event);
 
 /*
  *
  */
-void key_iconv_send (const gchar *buf, gsize len);
+void key_send_utf8_buffer      (const gchar *buf);
 
 /*
  * This function sends the key code `keycode' to channel.
  *
  * See gdk/gdkkeysyms.h for available values.
  */
-void key_send_code  (gint keycode);
+void key_send_code             (gint keycode);
 
-#define key_send_page_down()      key_send_code (GDK_Page_Down)
-#define key_send_page_up()        key_send_code (GDK_Page_Up)
-#define key_send_up()             key_send_code (GDK_Up)
-#define key_send_down()           key_send_code (GDK_Down)
+#define key_send_page_down()   key_send_code (GDK_Page_Down)
+#define key_send_page_up()     key_send_code (GDK_Page_Up)
+#define key_send_up()          key_send_code (GDK_Up)
+#define key_send_down()        key_send_code (GDK_Down)
 
 /*
  * GUI related functions and controls.
  */
 
 /* Initializes GUI and its widgets. */
-void gui_init             (gint *argc, char ***argv);
+void gui_init                  (gint *argc, char ***argv);
 
 /* Enables mouse events on console screen. */
-void gui_mouse_enable     ();
+void gui_mouse_enable          ();
 
 /* Disables mouse events on console screen. */
-void gui_mouse_disable    ();
+void gui_mouse_disable         ();
 
 /* Enables key press events on console screen. */
-void gui_keyboard_enable  ();
+void gui_keyboard_enable       ();
 
 /* Disables key press events on console screen. */
-void gui_keyboard_disable ();
+void gui_keyboard_disable      ();
 
 
 #endif /* __INTERNAL_H_ */

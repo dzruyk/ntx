@@ -87,7 +87,7 @@ static const gchar *shift_func_codes[N_FUNKEYS] =
     NULL, NULL, NULL
   };
 
-void
+static void
 key_iconv_send (const gchar *buf, gsize len)
 {
   const char *from = "utf8", *to = "cp866";
@@ -106,7 +106,6 @@ key_iconv_send (const gchar *buf, gsize len)
         g_error ("key_send: iconv_open can't convert %s to %s", from, to);
       else
         g_error ("key_send: iconv_open %s", strerror (errno));
-      return;
     }
 
   out = buffer;
@@ -131,6 +130,90 @@ key_iconv_send (const gchar *buf, gsize len)
     }
 
   iconv_close (cd);
+}
+
+/*
+ * This helper finds the start of the next UTF-8 character
+ * in the string after p and sets cur_char_sz 
+ * with byte size of current character.
+ */
+static gchar*
+utf8_next_char (const gchar *p, size_t *cur_char_sz)
+{
+  gchar *next;
+
+  next = g_utf8_find_next_char (p, NULL);
+  if (next == NULL || p == next) {
+    *cur_char_sz = 0;
+    return NULL;
+  }
+
+  *cur_char_sz = next - p;
+  return next;
+}
+
+void
+key_send_utf8_buffer (const gchar *s)
+{
+  const char *from = "utf8", *to = "cp866";
+  iconv_t cd;
+  GString *res;
+  gchar *p, *pnext;
+  size_t inlen;
+
+  g_assert (s != NULL);
+  g_assert (g_utf8_validate (s, -1, NULL));
+
+  cd = iconv_open (to, from);
+  if (cd == (iconv_t) -1)
+    {
+      if (errno == EINVAL)
+        g_error ("key_send: iconv_open can't convert %s to %s", from, to);
+      else
+        g_error ("key_send: iconv_open %s", strerror (errno));
+    }
+
+  p = (gchar *) s;
+  pnext = utf8_next_char (p, &inlen);
+
+  res = g_string_new ("");
+
+  while (pnext != NULL)
+    {
+      gchar tmp[64];
+      gchar *out = tmp;
+      gchar *in = p;
+      size_t outlen = sizeof (tmp);
+      size_t nconv;
+
+      nconv = iconv (cd, &in, &inlen, &out, &outlen);
+      if (nconv == (size_t) -1)
+        {
+          if (errno == EILSEQ)
+            g_error ("%s: iconv invalid byte sequence", __FUNCTION__);
+          else
+            g_error ("%s: iconv %s", __FUNCTION__, strerror (errno));
+        }
+
+      g_assert (in != p);
+
+      *out = '\0';
+
+      p = pnext;
+      pnext = utf8_next_char (p, &inlen);
+
+      g_string_append_printf (res, "+%s", tmp);
+    }
+
+    iconv_close (cd);
+
+    if (res->len > 0)
+      {
+        g_string_append_printf (res, "%c", ESC);
+        chn_write (res->str, res->len);
+      }
+
+    g_string_free (res, TRUE);
 }
 
 /* This helper translates the function key + modifier to the character
