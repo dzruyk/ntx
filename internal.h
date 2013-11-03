@@ -32,7 +32,7 @@ void key_send                  (const GdkEventKey *event);
 /*
  *
  */
-void key_send_utf8_buffer      (const gchar *buf);
+void key_send_text             (const gchar *buf);
 
 /*
  * This function sends the key code `keycode' to channel.

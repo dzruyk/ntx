@@ -100,7 +100,7 @@ console_text_pasted_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
   else
     {
       g_debug("text-pasted in IOS mode %s", s);
-      key_send_utf8_buffer (s);
+      key_send_text (s);
     }
 
   return TRUE;

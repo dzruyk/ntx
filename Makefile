@@ -16,6 +16,7 @@ all: $(BINARIES)
 fc.o: fc.c fc.h
 	$(COMPILE) -c -o $@ $<
 
+fontsel.o: CFLAGS += -Wno-unused-variable
 fontsel.o: fontsel.c fontsel.h
 	$(COMPILE) -c -o $@ $<
 
@@ -55,6 +56,8 @@ fiorw.o: fiorw.c fiorw.h
 ntx: main.c $(OBJECTS) $(HEADERS)
 	$(COMPILE) -o $@ main.c $(OBJECTS)
 
+test_console: CFLAGS += -Wno-unused-function -Wno-unused-variable \
+	-Wno-unused-but-set-variable
 test_console: test_console.c console.o console_marshal.o fontsel.o fc.o
 	$(COMPILE) -o $@ $^
 
