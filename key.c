@@ -158,7 +158,7 @@ key_send_text (const gchar *s)
 
   buf = g_string_new ("");
 
-  while (pnext != NULL && inlen > 0)
+  while (pnext != NULL && inlen != 0)
     {
       gchar tmp[1];
       gchar *out = tmp;

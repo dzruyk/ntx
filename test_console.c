@@ -792,6 +792,8 @@ static gboolean
 console_button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
   g_debug ("button pressed: x=%f y=%f code=%d", event->x, event->y, event->button);
+
+  return FALSE;
 }
 
 static gboolean
