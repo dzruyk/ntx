@@ -171,12 +171,17 @@ key_send_text (const gchar *s)
         {
           if (errno == EILSEQ)
             g_warning ("%s: iconv invalid byte sequence", __FUNCTION__);
+          else if (errno == E2BIG)
+            g_error ("%s: buffer is too small", __FUNCTION__);
           else
             g_warning ("%s: iconv %s", __FUNCTION__, strerror (errno));
 	  goto next_char;
         }
 
       g_assert (in != p);
+      if (outlen == sizeof (tmp))
+          goto next_char;
+
 
       g_string_append_c (buf, '+');
       g_string_append_c (buf, tmp[0]);

@@ -25,12 +25,12 @@ gboolean client_in_telnet_mode ();
  */
 
 /*
- * This function decodes and sends a key event `event' to channel
+ * This function decodes and sends a key event `event' to channel.
  */
 void key_send                  (const GdkEventKey *event);
 
 /*
- *
+ * This function formats and sends null terminated string to channel.
  */
 void key_send_text             (const gchar *buf);
 
