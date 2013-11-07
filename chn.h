@@ -6,20 +6,20 @@ typedef struct _ChannelCallbacks ChannelCallbacks;
 typedef struct _ChannelFuncs ChannelFuncs;
 
 struct _ChannelFuncs {
-  const gchar *(*get_name) ();
-  gsize (*write) (const void *buf, gsize len);
-  gsize (*prepend) (const void *buf, gsize len);
-  gboolean (*connect) ();
-  void (*disconnect) ();
-  void (*finalize) ();
-  gboolean (*is_connected) ();
+  const gchar * (*get_name)     ();
+  gsize         (*write)        (const void *buf, gsize len);
+  gsize         (*prepend)      (const void *buf, gsize len);
+  gboolean      (*connect)      ();
+  void          (*disconnect)   ();
+  void          (*finalize)     ();
+  gboolean      (*is_connected) ();
 };
 
 struct _ChannelCallbacks {
-  void (*error) (const GError *err, gpointer user_data);
-  void (*disconnect) (const GError *err, gpointer user_data);
-  void (*input) (guchar *buf, gsize len, gpointer user_data);
-  gpointer user_data;
+  void      (*error)      (const GError *err, gpointer user_data);
+  void      (*disconnect) (const GError *err, gpointer user_data);
+  void      (*input)      (guchar *buf, gsize len, gpointer user_data);
+  gpointer  user_data;
 };
 
 gint         chn_telnet_init   (const gchar *host, gint port);

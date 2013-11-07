@@ -57,9 +57,9 @@ struct _ConsoleClass
 
   /*events */
   gboolean (* text_selected) (Console *console,
-                          const gchar *str);
-  gboolean (* text_pasted) (Console *console,
-                        const gchar *str);
+                              const gchar *str);
+  gboolean (* text_pasted)   (Console *console,
+                              const gchar *str);
 };
 
 GType              console_get_type         ();
@@ -111,7 +111,7 @@ void               console_set_cursor_shape (Console            *console,
                                              ConsoleCursorShape  cursor_shape);
 void               console_erase_display    (Console            *console,
                                              ConsoleEraseMode    mode);
-void               console_erase_line            (Console            *console,
+void               console_erase_line       (Console            *console,
                                              ConsoleEraseMode    mode);
 void               console_clear            (Console            *console);
 void               console_reset            (Console            *console);
