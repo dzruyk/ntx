@@ -192,15 +192,15 @@ next_char:
       inlen = pnext - p;
     }
 
-    iconv_close (cd);
+  iconv_close (cd);
 
-    if (buf->len > 0)
-      {
-        g_string_append_c (buf, ESC);
-        chn_write (buf->str, buf->len);
-      }
+  if (buf->len > 0)
+    {
+      g_string_append_c (buf, ESC);
+      chn_write (buf->str, buf->len);
+    }
 
-    g_string_free (buf, TRUE);
+  g_string_free (buf, TRUE);
 }
 
 /* This helper translates the function key + modifier to the character
