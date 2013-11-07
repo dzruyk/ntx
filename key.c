@@ -139,7 +139,6 @@ key_send_text (const gchar *s)
   iconv_t cd;
   GString *buf;
   gchar *p, *pnext;
-  size_t inlen;
 
   g_assert (s != NULL);
 
@@ -152,19 +151,21 @@ key_send_text (const gchar *s)
         g_error ("%s: iconv_open %s", __FUNCTION__, strerror (errno));
     }
 
-  p = (gchar *) s;
-  pnext = g_utf8_find_next_char (p, NULL);
-  inlen = pnext - p;
-
   buf = g_string_new ("");
 
-  while (pnext != NULL && inlen != 0)
+  p = (gchar *) s;
+
+  while ((pnext = g_utf8_find_next_char (p, NULL)) != NULL)
     {
       gchar tmp[1];
       gchar *out = tmp;
       gchar *in = p;
       size_t outlen = sizeof (tmp);
-      size_t nconv;
+      size_t nconv, inlen;
+
+      inlen = pnext - p;
+      if (inlen == 0)
+        break;
 
       nconv = iconv (cd, &in, &inlen, &out, &outlen);
       if (nconv == (size_t) -1)
@@ -182,14 +183,11 @@ key_send_text (const gchar *s)
       if (outlen == sizeof (tmp))
         goto next_char;
 
-
       g_string_append_c (buf, '+');
       g_string_append_c (buf, tmp[0]);
 
 next_char:
       p = pnext;
-      pnext = g_utf8_find_next_char (p, NULL);
-      inlen = pnext - p;
     }
 
   iconv_close (cd);
