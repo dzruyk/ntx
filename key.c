@@ -180,7 +180,7 @@ key_send_text (const gchar *s)
 
       g_assert (in != p);
       if (outlen == sizeof (tmp))
-          goto next_char;
+        goto next_char;
 
 
       g_string_append_c (buf, '+');
