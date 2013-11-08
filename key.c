@@ -179,7 +179,6 @@ key_send_text (const gchar *s)
 	  goto next_char;
         }
 
-      g_assert (in != p);
       if (outlen == sizeof (tmp))
         goto next_char;
 
