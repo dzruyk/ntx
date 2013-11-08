@@ -157,8 +157,8 @@ key_send_text (const gchar *s)
 
   while ((pnext = g_utf8_find_next_char (p, NULL)) != NULL)
     {
-      gchar tmp[1];
-      gchar *out = tmp;
+      gchar tmp;
+      gchar *out = &tmp;
       gchar *in = p;
       size_t outlen = sizeof (tmp);
       size_t nconv, inlen;
@@ -183,7 +183,7 @@ key_send_text (const gchar *s)
         goto next_char;
 
       g_string_append_c (buf, '+');
-      g_string_append_c (buf, tmp[0]);
+      g_string_append_c (buf, tmp);
 
 next_char:
       p = pnext;
