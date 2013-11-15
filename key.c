@@ -157,8 +157,8 @@ key_send_text (const gchar *s)
 
   while ((pnext = g_utf8_find_next_char (p, NULL)) != NULL)
     {
-      gchar tmp;
-      gchar *out = &tmp;
+      gchar tmp[UTF8_MAX_CHAR + 1];
+      gchar *out = tmp;
       gchar *in = p;
       size_t outlen = sizeof (tmp);
       size_t nconv, inlen;
@@ -172,8 +172,6 @@ key_send_text (const gchar *s)
         {
           if (errno == EILSEQ)
             g_warning ("%s: iconv invalid byte sequence", __FUNCTION__);
-          else if (errno == E2BIG)
-            g_error ("%s: buffer is too small", __FUNCTION__);
           else
             g_warning ("%s: iconv %s", __FUNCTION__, strerror (errno));
 	  goto next_char;
@@ -182,8 +180,10 @@ key_send_text (const gchar *s)
       if (outlen == sizeof (tmp))
         goto next_char;
 
+      *out = '\0';
+
       g_string_append_c (buf, '+');
-      g_string_append_c (buf, tmp);
+      g_string_append (buf, tmp);
 
 next_char:
       p = pnext;
