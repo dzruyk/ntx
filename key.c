@@ -160,13 +160,13 @@ key_send_text (const gchar *s)
       gchar tmp[UTF8_MAX_CHAR + 1];
       gchar *out = tmp;
       gchar *in = p;
-      size_t outlen = sizeof (tmp);
-      size_t nconv, inlen;
+      size_t inlen, nconv, outlen;
 
       inlen = pnext - p;
       if (inlen == 0)
         break;
 
+      outlen = sizeof (tmp);
       nconv = iconv (cd, &in, &inlen, &out, &outlen);
       if (nconv == (size_t) -1)
         {
