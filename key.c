@@ -170,9 +170,7 @@ key_send_text (const gchar *s)
       nconv = iconv (cd, &in, &inlen, &out, &outlen);
       if (nconv == (size_t) -1)
         {
-          if (errno == EILSEQ)
-            g_warning ("%s: iconv invalid byte sequence", __FUNCTION__);
-          else
+          if (errno != EILSEQ)
             g_warning ("%s: iconv %s", __FUNCTION__, strerror (errno));
 	  goto next_char;
         }
