@@ -236,8 +236,12 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
 
   if (event->button == LEFT_MOUSE_BUTTON && (event->state & modifiers) == GDK_CONTROL_MASK)
     {
-      g_assert (cs->x1 == -1 && cs->y1 == -1);
-      g_assert (cs->x2 == -1 && cs->y2 == -1);
+      if (cs->x1 != -1 || cs->y1 != -1
+          || cs->x2 != -1 || cs->y2 != -1)
+        {
+          g_warning ("Abnormal selection coordinates initial value(s)");
+          return FALSE;
+        }
 
       g_debug ("start selection at (x1, y1) (%f, %f)", event->x, event->y);
 
@@ -252,7 +256,7 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
       return try_get_pasted_text (console);
     }
 
-  return TRUE;
+  return FALSE;
 }
 
 #define SWAP_IF(cond, a, b) G_STMT_START { \

@@ -182,6 +182,7 @@ key_send_text (const gchar *s)
 
       g_string_append_c (buf, '+');
       g_string_append (buf, tmp);
+      g_string_append_c (buf, '\033');
 
 next_char:
       p = pnext;
@@ -191,7 +192,6 @@ next_char:
 
   if (buf->len > 0)
     {
-      g_string_append_c (buf, ESC);
       chn_write (buf->str, buf->len);
     }
 
