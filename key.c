@@ -132,13 +132,51 @@ key_iconv_send (const gchar *buf, gsize len)
   iconv_close (cd);
 }
 
+static gboolean
+unichar_to_sequence (gunichar uc, const gchar **res_buf, gsize *res_len)
+{
+  const char *str;
+
+  static const gint characters [] =
+    {
+      '\n', '\r', '\t'
+    };
+
+  static const gint index_to_codes[] =
+    {
+      24, 24, 23, 
+    };
+  int i;
+
+  str = NULL;
+
+  for (i = 0; i < G_N_ELEMENTS (characters); i++)
+    {
+      if (uc == characters[i])
+        {
+          gint index;
+
+          index = index_to_codes[i];
+          str = func_codes[index];
+          break;
+        }
+    }
+
+  if (str == NULL)
+    return FALSE;
+
+  *res_buf = str;
+  *res_len = strlen (str);
+  return TRUE;
+}
+
 void
 key_send_text (const gchar *s)
 {
   const char *from = "utf8", *to = "cp866";
   iconv_t cd;
   GString *buf;
-  gchar *p, *pnext;
+  gchar *p;
 
   g_assert (s != NULL);
 
@@ -155,19 +193,33 @@ key_send_text (const gchar *s)
 
   p = (gchar *) s;
 
-  while ((pnext = g_utf8_find_next_char (p, NULL)) != NULL)
+  while (*p != '\0')
     {
-      gchar tmp[UTF8_MAX_CHAR + 1];
-      gchar *out = tmp;
-      gchar *in = p;
+      gchar out[UTF8_MAX_CHAR + 1];
+      gchar in[UTF8_MAX_CHAR + 1];
+      gchar *inp, *outp;
+      gunichar uc;
       size_t inlen, nconv, outlen;
 
-      inlen = pnext - p;
-      if (inlen == 0)
-        break;
+      uc = g_utf8_get_char (p);
+      switch (uc)
+        {
+        case '\n':
+        case '\r':
+        case '\t':
+          /* We need convert character into internal representation */
+          unichar_to_sequence (uc, &outp, &outlen);
+          g_string_append (buf, outp);
+          goto next_char;
+        default:
+          inlen = g_unichar_to_utf8 (uc, in);
+          break;
+        }
 
-      outlen = sizeof (tmp);
-      nconv = iconv (cd, &in, &inlen, &out, &outlen);
+      inp = p;
+      outp = out;
+      outlen = sizeof (out);
+      nconv = iconv (cd, &inp, &inlen, &outp, &outlen);
       if (nconv == (size_t) -1)
         {
           if (errno != EILSEQ)
@@ -175,17 +227,17 @@ key_send_text (const gchar *s)
 	  goto next_char;
         }
 
-      if (outlen == sizeof (tmp))
+      if (outlen == sizeof (out))
         goto next_char;
 
-      *out = '\0';
+      *outp = '\0';
 
       g_string_append_c (buf, '+');
-      g_string_append (buf, tmp);
+      g_string_append (buf, out);
       g_string_append_c (buf, '\033');
 
 next_char:
-      p = pnext;
+      p = g_utf8_next_char (p);
     }
 
   iconv_close (cd);
