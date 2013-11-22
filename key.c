@@ -139,12 +139,12 @@ unichar_to_sequence (gunichar uc, const gchar **res_buf, gsize *res_len)
 
   static const gint characters [] =
     {
-      '\n', '\r', '\t'
+      '\t', '\n', '\r', '\b'
     };
 
   static const gint index_to_codes[] =
     {
-      24, 24, 23, 
+      23, 24, 24, 25
     };
   int i;
 
