@@ -208,7 +208,7 @@ key_send_text (const gchar *s)
         case '\t':
         case '\n':
         case '\r':
-          /* We need convert character into internal representation */
+          /* We need convert character into internal representation. */
           unichar_to_sequence (uc, &outp, &outlen);
           g_string_append (buf, outp);
           goto next_char;
