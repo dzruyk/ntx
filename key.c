@@ -132,51 +132,13 @@ key_iconv_send (const gchar *buf, gsize len)
   iconv_close (cd);
 }
 
-static gboolean
-unichar_to_sequence (gunichar uc, const gchar **res_buf, gsize *res_len)
-{
-  const char *str;
-
-  static const gint characters [] =
-    {
-      '\t', '\n', '\r', '\b'
-    };
-
-  static const gint index_to_codes[] =
-    {
-      23, 24, 24, 25
-    };
-  int i;
-
-  str = NULL;
-
-  for (i = 0; i < G_N_ELEMENTS (characters); i++)
-    {
-      if (uc == characters[i])
-        {
-          gint index;
-
-          index = index_to_codes[i];
-          str = func_codes[index];
-          break;
-        }
-    }
-
-  if (str == NULL)
-    return FALSE;
-
-  *res_buf = str;
-  *res_len = strlen (str);
-  return TRUE;
-}
-
 void
 key_send_text (const gchar *s)
 {
   const char *from = "utf8", *to = "cp866";
   iconv_t cd;
   GString *buf;
-  gchar *p;
+  const gchar *p, *pnext;
 
   g_assert (s != NULL);
 
@@ -191,62 +153,62 @@ key_send_text (const gchar *s)
 
   buf = g_string_new ("");
 
-  p = (gchar *) s;
-
-  while (*p != '\0')
+  for (p = s; *p != '\0'; p = pnext)
     {
       gchar out[UTF8_MAX_CHAR + 1];
-      gchar in[UTF8_MAX_CHAR + 1];
-      gchar *inp, *outp;
-      gunichar uc;
+      char *inp, *outp;
       size_t inlen, nconv, outlen;
 
-      uc = g_utf8_get_char (p);
-      switch (uc)
+      pnext = g_utf8_find_next_char (p, NULL);
+      if (pnext == NULL) {
+        pnext = p;
+        while (*pnext != '\0')
+          pnext++;
+      }
+
+      inlen = pnext - p;
+
+      switch (*p)
         {
-        case '\b':
-        case '\t':
         case '\n':
         case '\r':
-          /* We need convert character into internal representation. */
-          unichar_to_sequence (uc, &outp, &outlen);
-          g_string_append (buf, outp);
-          goto next_char;
+          g_string_append (buf, "13");
+          continue;
+        case '\t':
+          g_string_append (buf, "9");
+          continue;
+        case '\b':
+          continue;
         default:
-          inlen = g_unichar_to_utf8 (uc, in);
           break;
         }
 
-      inp = p;
+      inp = (char *) p;
       outp = out;
       outlen = sizeof (out);
+
       nconv = iconv (cd, &inp, &inlen, &outp, &outlen);
       if (nconv == (size_t) -1)
         {
           if (errno != EILSEQ)
             g_warning ("%s: iconv %s", __FUNCTION__, strerror (errno));
-	  goto next_char;
+          continue;
         }
 
       if (outlen == sizeof (out))
-        goto next_char;
+        continue;
 
       *outp = '\0';
 
       g_string_append_c (buf, '+');
       g_string_append (buf, out);
       g_string_append_c (buf, '\033');
-
-next_char:
-      p = g_utf8_next_char (p);
     }
 
   iconv_close (cd);
 
   if (buf->len > 0)
-    {
       chn_write (buf->str, buf->len);
-    }
 
   g_string_free (buf, TRUE);
 }
