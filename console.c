@@ -238,7 +238,7 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
     {
       if (cs->x1 != -1 || cs->y1 != -1
           || cs->x2 != -1 || cs->y2 != -1)
-          return FALSE;
+        return FALSE;
 
       g_debug ("start selection at (x1, y1) (%f, %f)", event->x, event->y);
 
