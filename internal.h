@@ -30,7 +30,7 @@ gboolean client_in_telnet_mode ();
 void key_send                  (const GdkEventKey *event);
 
 /*
- * This function formats and sends null terminated string to channel.
+ * This function sends NULL terminated string to channel.
  */
 void key_send_text             (const gchar *buf);
 

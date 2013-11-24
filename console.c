@@ -266,7 +266,6 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
     }               \
   } G_STMT_END
 
-/* FIXME: RENAME ME! */
 static GString*
 get_selected_text(Console *console)
 {
