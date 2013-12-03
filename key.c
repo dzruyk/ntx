@@ -172,10 +172,10 @@ key_send_text (const gchar *s)
         {
         case '\n':
         case '\r':
-          g_string_append (buf, "13");
+          g_string_append (buf, "13\033");
           continue;
         case '\t':
-          g_string_append (buf, "9");
+          g_string_append (buf, "9\033");
           continue;
         case '\b':
           continue;
