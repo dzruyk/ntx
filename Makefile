@@ -3,7 +3,7 @@ LD = ld
 CFLAGS = -Wall -O0 -g -D_XOPEN_SOURCE=600 -DG_ENABLE_DEBUG -D_CLIENT_DEBUG `pkg-config --cflags gtk+-x11-2.0`
 #CFLAGS = -Wall -O2 -D_XOPEN_SOURCE=600 `pkg-config --cflags gtk+-x11-2.0`
 CFLAGS += -I/usr/include/fontconfig
-LIBS = `pkg-config --libs gtk+-x11-2.0` -lfreetype -lfontconfig
+LIBS = `pkg-config --libs gtk+-x11-2.0` -lfreetype -lfontconfig -lm
 OBJECTS = fc.o fontsel.o console.o console_marshal.o nvt.o client.o gui.o key.o \
 	  chn.o chn_telnet.o chn_echo.o chn_pty.o fiorw.o
 HEADERS = internal.h nvt.h console.h

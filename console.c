@@ -316,7 +316,7 @@ get_selected_text(Console *console)
   return res;
 }
 
-gboolean
+static gboolean
 console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
   Console *console = (Console *) widget;
@@ -347,7 +347,7 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
   return TRUE;
 }
 
-gboolean
+static gboolean
 console_motion_notify_event_cb (GtkWidget *widget, GdkEventMotion *event, gpointer user_data)
 {
   Console *console = (Console *) widget;
@@ -771,6 +771,9 @@ console_text_selected (Console *console, const gchar *str)
   GtkClipboard *clipboard;
 
   clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
+  gtk_clipboard_set_text (clipboard, str, strlen(str));
+
+  clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
   gtk_clipboard_set_text (clipboard, str, strlen(str));
 
   return TRUE;
