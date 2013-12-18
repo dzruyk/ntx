@@ -26,7 +26,8 @@ static gulong console_button_press_id;
 static gulong console_button_release_id;
 static gulong console_motion_notify_id;
 static gulong console_key_press_id;
-static gulong console_text_pasted_id;
+static gulong console_primary_text_pasted_id;
+static gulong console_clipboard_text_pasted_id;
 static gulong console_scroll_id;
 
 extern gboolean key_press_event_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
@@ -321,8 +322,11 @@ gui_init (gint *argc, gchar ***argv)
     g_signal_connect (GTK_WIDGET (console), "button-release-event", G_CALLBACK (console_button_event_cb), NULL);
   console_scroll_id =
     g_signal_connect (GTK_WIDGET (console), "scroll-event", G_CALLBACK (console_scroll_event_cb), NULL);
-  console_text_pasted_id = 
-    g_signal_connect (GTK_WIDGET (console), "text-pasted", G_CALLBACK (console_text_pasted_cb), NULL);
+  console_primary_text_pasted_id = 
+    g_signal_connect (GTK_WIDGET (console), "primary-text-pasted", G_CALLBACK (console_text_pasted_cb), NULL);
+  console_clipboard_text_pasted_id = 
+    g_signal_connect (GTK_WIDGET (console), "clipboard-text-pasted", G_CALLBACK (console_text_pasted_cb), NULL);
+
 
   g_signal_handler_block (G_OBJECT (console), console_motion_notify_id);
   g_signal_handler_block (G_OBJECT (console), console_button_press_id);

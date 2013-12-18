@@ -1,4 +1,4 @@
-#include <string.h>
+#include <gdk/gdkkeysyms-compat.h>
 #include <glib.h>
 #include <cairo/cairo.h>
 #include <ft2build.h>
@@ -55,8 +55,10 @@ typedef enum
 } ConsolePropertyMask;
 
 enum {
-  TEXT_SELECTED,
-  TEXT_PASTED,
+  PRIMARY_TEXT_SELECTED,
+  PRIMARY_TEXT_PASTED,
+  CLIPBOARD_TEXT_SELECTED,
+  CLIPBOARD_TEXT_PASTED,
   LAST_SIGNAL,
 };
 
@@ -178,7 +180,8 @@ struct _ConsolePrivate {
 
 static void     console_class_init     (ConsoleClass   *klass);
 static void     console_init           (Console        *console);
-static gboolean console_text_selected    (Console *console, const gchar *str);
+static gboolean console_primary_text_selected   (Console *console, const gchar *str);
+static gboolean console_clipboard_text_selected (Console *console, const gchar *str);
 static void     console_size_request   ();
 static void     console_size_allocate  ();
 static void     console_realize        ();
@@ -200,9 +203,10 @@ static void     invalidate_char_rect   (Console        *console,
                                         gint            y);
 static void     invalidate_cursor_rect (Console        *console);
 static gboolean console_cursor_timer   (gpointer        user_data);
+static GString* get_selected_text(Console *console);
 
 static gboolean
-try_get_pasted_text (Console *console)
+primary_try_get_pasted_text (Console *console)
 {
   GtkClipboard *clipboard;
   gchar *s;
@@ -214,9 +218,31 @@ try_get_pasted_text (Console *console)
   if (s == NULL)
     return FALSE;
 
+  g_debug ("get \"%s\" from primary", s);
+
+  g_signal_emit (console, console_signals[PRIMARY_TEXT_PASTED], 0, s, &ret);
+
+  g_free (s);
+
+  return TRUE;
+}
+
+static gboolean
+clipboard_try_get_pasted_text (Console *console)
+{
+  GtkClipboard *clipboard;
+  gchar *s;
+  gboolean ret;
+
+  clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
+
+  s = gtk_clipboard_wait_for_text (clipboard);
+  if (s == NULL)
+    return FALSE;
+
   g_debug ("get \"%s\" from clipboard", s);
 
-  g_signal_emit (console, console_signals[TEXT_PASTED], 0, s, &ret);
+  g_signal_emit (console, console_signals[CLIPBOARD_TEXT_PASTED], 0, s, &ret);
 
   g_free (s);
 
@@ -250,9 +276,48 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
     {
       g_debug (" paste action");
 
-      return try_get_pasted_text (console);
+      return primary_try_get_pasted_text (console);
     }
 
+  return FALSE;
+}
+
+static gboolean
+console_key_press_event_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+{
+  Console *console = (Console *) widget;
+  GdkKeymap *keymap;
+  gint lvl;
+  guint kv;
+
+  g_assert (widget == user_data);
+
+  keymap = gdk_keymap_get_default();
+
+  gdk_keymap_translate_keyboard_state(keymap, event->hardware_keycode, event->state, 0, &kv, NULL, &lvl, NULL);
+
+  if (kv == GDK_V &&
+      (event->state & GDK_CONTROL_MASK) != 0)
+    {
+      g_debug("ctrl+shift+v pressed");
+      return clipboard_try_get_pasted_text (console);
+    }
+  else if (kv == GDK_C &&
+      (event->state & GDK_CONTROL_MASK) != 0)
+    {
+      gboolean ret;
+      GString *s;
+
+      g_debug("ctrl+shift+c pressed");
+      s = get_selected_text (console);
+
+      g_signal_emit (console, console_signals[CLIPBOARD_TEXT_SELECTED], 0, s->str, &ret);
+      gtk_widget_queue_draw (widget);
+
+      g_string_free (s, TRUE);
+      return FALSE;
+    }
+  
   return FALSE;
 }
 
@@ -335,7 +400,7 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
 
       s = get_selected_text (console);
 
-      g_signal_emit (console, console_signals[TEXT_SELECTED], 0, s->str, &ret);
+      g_signal_emit (console, console_signals[PRIMARY_TEXT_SELECTED], 0, s->str, &ret);
       gtk_widget_queue_draw (widget);
 
       cs->x1 = cs->x2 = -1;
@@ -597,23 +662,46 @@ console_class_init (ConsoleClass *klass)
                                                      CONSOLE_BLINK_STEADY, CONSOLE_BLINK_FAST,
                                                      CONSOLE_BLINK_MEDIUM,
                                                      G_PARAM_READWRITE));
-  klass->text_pasted = NULL;
-  klass->text_selected = console_text_selected;
-  console_signals[TEXT_SELECTED] =
-    g_signal_new ("text-selected",
+  klass->primary_text_pasted = NULL;
+  klass->primary_text_selected = console_primary_text_selected;
+  klass->clipboard_text_pasted = NULL;
+  klass->clipboard_text_selected = console_clipboard_text_selected;
+  console_signals[PRIMARY_TEXT_SELECTED] =
+    g_signal_new ("primary-text-selected",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ConsoleClass, text_selected),
+                  G_STRUCT_OFFSET (ConsoleClass, primary_text_selected),
                   g_signal_accumulator_true_handled,
                   NULL,
                   g_cclosure_console_BOOLEAN__STRING,
                   G_TYPE_BOOLEAN, 1,
                   G_TYPE_STRING);
-  console_signals[TEXT_PASTED] =
-    g_signal_new ("text-pasted",
+  console_signals[PRIMARY_TEXT_PASTED] =
+    g_signal_new ("primary-text-pasted",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ConsoleClass, text_pasted),
+                  G_STRUCT_OFFSET (ConsoleClass, primary_text_pasted),
+                  g_signal_accumulator_true_handled,
+                  NULL,
+                  g_cclosure_console_BOOLEAN__STRING,
+                  G_TYPE_BOOLEAN, 1,
+                  G_TYPE_STRING);
+
+  console_signals[CLIPBOARD_TEXT_SELECTED] =
+    g_signal_new ("clipboard-text-selected",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (ConsoleClass, clipboard_text_selected),
+                  g_signal_accumulator_true_handled,
+                  NULL,
+                  g_cclosure_console_BOOLEAN__STRING,
+                  G_TYPE_BOOLEAN, 1,
+                  G_TYPE_STRING);
+  console_signals[CLIPBOARD_TEXT_PASTED] =
+    g_signal_new ("clipboard-text-pasted",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (ConsoleClass, clipboard_text_pasted),
                   g_signal_accumulator_true_handled,
                   NULL,
                   g_cclosure_console_BOOLEAN__STRING,
@@ -758,6 +846,7 @@ console_init (Console *console)
 
   /* callbacks */
   g_signal_connect (GTK_WIDGET (console), "button-press-event", G_CALLBACK (console_button_press_event_cb), console);
+  g_signal_connect (GTK_WIDGET (console), "key-press-event", G_CALLBACK (console_key_press_event_cb), console);
   g_signal_connect (GTK_WIDGET (console), "button-release-event", G_CALLBACK (console_button_release_event_cb), console);
   g_signal_connect (GTK_WIDGET (console), "motion-notify-event", G_CALLBACK (console_motion_notify_event_cb), console);
 
@@ -766,18 +855,27 @@ console_init (Console *console)
 }
 
 static gboolean
-console_text_selected (Console *console, const gchar *str)
+console_primary_text_selected (Console *console, const gchar *str)
 {
   GtkClipboard *clipboard;
 
   clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
   gtk_clipboard_set_text (clipboard, str, strlen(str));
 
+  return TRUE;
+}
+
+static gboolean
+console_clipboard_text_selected (Console *console, const gchar *str)
+{
+  GtkClipboard *clipboard;
+
   clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
   gtk_clipboard_set_text (clipboard, str, strlen(str));
 
   return TRUE;
 }
+
 
 static void
 console_size_request (GtkWidget *widget, GtkRequisition *requisition)
