@@ -178,32 +178,34 @@ struct _ConsolePrivate {
 #define CONSOLE_GET_PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), CONSOLE_TYPE, ConsolePrivate))
 
-static void     console_class_init     (ConsoleClass   *klass);
-static void     console_init           (Console        *console);
-static gboolean console_primary_text_selected   (Console *console, const gchar *str);
-static gboolean console_clipboard_text_selected (Console *console, const gchar *str);
-static void     console_size_request   ();
-static void     console_size_allocate  ();
-static void     console_realize        ();
-static gboolean console_expose         ();
-static void     console_draw           (GtkWidget      *widget,
-                                        GdkEventExpose *event);
-static void     console_set_property   (GObject        *object,
-                                        guint           prop_id,
-                                        const GValue   *value,
-                                        GParamSpec     *pspec);
-static void     console_get_property   (GObject        *object,
-                                        guint           prop_id,
-                                        GValue         *value,
-                                        GParamSpec     *pspec);
-static void     console_finalize       (GObject        *object);
+static void     console_class_init              (ConsoleClass   *klass);
+static void     console_init                    (Console        *console);
+static void     console_size_request            ();
+static void     console_size_allocate           ();
+static void     console_realize                 ();
+static gboolean console_expose                  ();
+static void     console_draw                    (GtkWidget      *widget,
+                                                 GdkEventExpose *event);
+static void     console_set_property            (GObject        *object,
+                                                 guint           prop_id,
+                                                 const GValue   *value,
+                                                 GParamSpec     *pspec);
+static void     console_get_property            (GObject        *object,
+                                                 guint           prop_id,
+                                                 GValue         *value,
+                                                 GParamSpec     *pspec);
+static void     console_finalize                (GObject        *object);
 
-static void     invalidate_char_rect   (Console        *console,
-                                        gint            x,
-                                        gint            y);
-static void     invalidate_cursor_rect (Console        *console);
-static gboolean console_cursor_timer   (gpointer        user_data);
-static GString* get_selected_text(Console *console);
+static void     invalidate_char_rect            (Console        *console,
+                                                 gint            x,
+                                                 gint            y);
+static void     invalidate_cursor_rect          (Console        *console);
+static gboolean console_cursor_timer            (gpointer        user_data);
+static gboolean console_primary_text_selected   (Console        *console,
+                                                 const gchar    *str);
+static gboolean console_clipboard_text_selected (Console        *console,
+                                                 const gchar    *str);
+static GString* get_selected_text               (Console        *console);
 
 static gboolean
 primary_try_get_pasted_text (Console *console)
@@ -303,7 +305,7 @@ console_key_press_event_cb (GtkWidget *widget, GdkEventKey *event, gpointer user
       return clipboard_try_get_pasted_text (console);
     }
   else if (kv == GDK_C &&
-      (event->state & GDK_CONTROL_MASK) != 0)
+           (event->state & GDK_CONTROL_MASK) != 0)
     {
       gboolean ret;
       GString *s;
