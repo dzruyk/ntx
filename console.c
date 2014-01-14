@@ -251,6 +251,24 @@ clipboard_try_get_pasted_text (Console *console)
   return TRUE;
 }
 
+static void
+update_selection_rect (Console *console)
+{
+  GdkRectangle rect;
+  gint char_width = console->priv->char_width;
+  gint char_height = console->priv->char_height;
+  ConsoleTextSelection *cs = &console->priv->text_selection;
+
+  rect.x = cs->x1 - (int)cs->x1 % char_width;
+  rect.y = cs->y1 - (int)cs->y1 % char_height;
+
+  rect.width = cs->x2 + (char_width - (int) cs->x2 % char_width)  - rect.x;
+  rect.height = cs->y2 + (char_height - (int) cs->x2 % char_height) - rect.y;
+  g_debug ("update_selection_rect: (%d %d) (%d %d)", rect.x, rect.y, rect.width, rect.height);
+
+  gdk_window_invalidate_rect (GTK_WIDGET (console)->window, &rect, FALSE);
+}
+
 static gboolean
 console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
@@ -272,7 +290,8 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
 
       cs->x1 = cs->x2 = event->x;
       cs->y1 = cs->y2 = event->y;
-      gtk_widget_queue_draw (widget);
+
+      update_selection_rect (console);
     }
   if (event->button == MIDDLE_MOUSE_BUTTON)
     {
@@ -314,10 +333,9 @@ console_key_press_event_cb (GtkWidget *widget, GdkEventKey *event, gpointer user
       s = get_selected_text (console);
 
       g_signal_emit (console, console_signals[CLIPBOARD_TEXT_SELECTED], 0, s->str, &ret);
-      gtk_widget_queue_draw (widget);
 
       g_string_free (s, TRUE);
-      return FALSE;
+      return TRUE;
     }
   
   return FALSE;
