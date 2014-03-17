@@ -427,9 +427,11 @@ console_button_release_event_cb (GtkWidget *widget, GdkEventButton *event, gpoin
       cs->y1 = cs->y2 = -1;
 
       g_string_free (s, TRUE);
+
+      return TRUE;
     }
 
-  return TRUE;
+  return FALSE;
 }
 
 static gboolean
@@ -452,7 +454,7 @@ console_motion_notify_event_cb (GtkWidget *widget, GdkEventMotion *event, gpoint
       gtk_widget_queue_draw (widget);
     }
 
-  return TRUE;
+  return FALSE;
 }
 
 /* This helper allocates a font face and is called only by
