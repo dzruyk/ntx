@@ -54,7 +54,7 @@ fiorw.o: fiorw.c fiorw.h
 	$(COMPILE) -c -o $@ $<
 
 ntx: main.c $(OBJECTS) $(HEADERS)
-	$(COMPILE) -o $@ main.c $(OBJECTS)
+	$(COMPILE) -o $@ main.c $(OBJECTS) $(LIBS)
 
 test_console: CFLAGS += -Wno-unused-function -Wno-unused-variable \
 	-Wno-unused-but-set-variable
