@@ -452,6 +452,8 @@ console_motion_notify_event_cb (GtkWidget *widget, GdkEventMotion *event, gpoint
         cs->y2 = event->y;
 
       gtk_widget_queue_draw (widget);
+
+      return TRUE;
     }
 
   return FALSE;
