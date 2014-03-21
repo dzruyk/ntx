@@ -292,6 +292,8 @@ console_button_press_event_cb (GtkWidget *widget, GdkEventButton *event, gpointe
       cs->y1 = cs->y2 = event->y;
 
       update_selection_rect (console);
+
+      return TRUE;
     }
   if (event->button == MIDDLE_MOUSE_BUTTON)
     {
