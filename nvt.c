@@ -4,7 +4,6 @@
 #include <signal.h>
 #include <string.h>
 #include <errno.h>
-#include <termios.h>
 #include <stdarg.h>
 #include <unistd.h>
 

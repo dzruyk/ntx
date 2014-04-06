@@ -1,7 +1,6 @@
 #include <gdk/gdkkeysyms.h>
 #include <errno.h>
 #include <string.h>
-#include <iconv.h>
 
 #include "console.h"
 #include "internal.h"
@@ -91,7 +90,7 @@ static void
 key_iconv_send (const gchar *buf, gsize len)
 {
   const char *from = "utf8", *to = "cp866";
-  iconv_t cd;
+  GIConv cd;
   gchar buffer[128];
   gchar *out;
   gsize outlen, nconv;
@@ -99,27 +98,27 @@ key_iconv_send (const gchar *buf, gsize len)
   if (buf == NULL || len == 0)
     return;
 
-  cd = iconv_open (to, from);
-  if (cd == (iconv_t) -1)
+  cd = g_iconv_open (to, from);
+  if (cd == (GIConv) -1)
     {
       if (errno == EINVAL)
-        g_error ("key_send: iconv_open can't convert %s to %s", from, to);
+        g_error ("key_send: g_iconv_open can't convert %s to %s", from, to);
       else
-        g_error ("key_send: iconv_open %s", strerror (errno));
+        g_error ("key_send: g_iconv_open %s", strerror (errno));
     }
 
   out = buffer;
   /* Preserve one byte for the terminating ESC. */
   outlen = sizeof (buffer)-1;
 
-  nconv = iconv (cd, (char **)&buf, &len, (char **)&out, &outlen);
+  nconv = g_iconv (cd, (char **)&buf, &len, (char **)&out, &outlen);
 
   if (nconv == (size_t) -1)
     {
       if (errno == EILSEQ)
-        g_error ("key_send: iconv invalid byte sequence");
+        g_error ("key_send: g_iconv invalid byte sequence");
       else
-        g_error ("key_send: iconv %s", strerror (errno));
+        g_error ("key_send: g_iconv %s", strerror (errno));
     }
   else
     {
@@ -129,26 +128,26 @@ key_iconv_send (const gchar *buf, gsize len)
       chn_write (buffer, outlen);
     }
 
-  iconv_close (cd);
+  g_iconv_close (cd);
 }
 
 void
 key_send_text (const gchar *s)
 {
   const char *from = "utf8", *to = "cp866";
-  iconv_t cd;
+  GIConv cd;
   GString *buf;
   const gchar *p, *pnext;
 
   g_assert (s != NULL);
 
-  cd = iconv_open (to, from);
-  if (cd == (iconv_t) -1)
+  cd = g_iconv_open (to, from);
+  if (cd == (GIConv) -1)
     {
       if (errno == EINVAL)
-        g_error ("%s: iconv_open can't convert %s to %s", __FUNCTION__, from, to);
+        g_error ("%s: g_iconv_open can't convert %s to %s", __FUNCTION__, from, to);
       else
-        g_error ("%s: iconv_open %s", __FUNCTION__, strerror (errno));
+        g_error ("%s: g_iconv_open %s", __FUNCTION__, strerror (errno));
     }
 
   buf = g_string_new ("");
@@ -187,11 +186,11 @@ key_send_text (const gchar *s)
       outp = out;
       outlen = sizeof (out);
 
-      nconv = iconv (cd, &inp, &inlen, &outp, &outlen);
+      nconv = g_iconv (cd, &inp, &inlen, &outp, &outlen);
       if (nconv == (size_t) -1)
         {
           if (errno != EILSEQ)
-            g_warning ("%s: iconv %s", __FUNCTION__, strerror (errno));
+            g_warning ("%s: g_iconv %s", __FUNCTION__, strerror (errno));
           continue;
         }
 
@@ -205,7 +204,7 @@ key_send_text (const gchar *s)
       g_string_append_c (buf, '\033');
     }
 
-  iconv_close (cd);
+  g_iconv_close (cd);
 
   if (buf->len > 0)
       chn_write (buf->str, buf->len);

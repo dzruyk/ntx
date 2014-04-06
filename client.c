@@ -1,12 +1,16 @@
 #include <sys/stat.h>
-#include <pwd.h>
 #include <stdlib.h>
 #include <glib.h>
-#include <iconv.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+
+#ifdef __unix__
+#  include <pwd.h>
+#else
+#  include <windows.h>
+#endif
 
 #include "console.h"
 #include "colors.h"
@@ -84,14 +88,18 @@ enum
 
 #define VERSION "3.13"
 
-#define DEFAULT_TMP_DIR         "/tmp"        /* default temporary directory */
+#ifdef __unix__
+#  define DEFAULT_TMP_DIR         "/tmp"        /* default temporary directory */
+#else
+#  define DEFAULT_TMP_DIR         "C:\\"
+#endif
 
 #define COMMAND_WRAPPER_BIN     "cmdwrapper"  /* name of a binary to wrap C_OS_COMMAND */
 
 #define FG_COLOR(c)    (0x0f & (c))
 #define BG_COLOR(c)    ((0xf0 & (c)) >> 4)
 
-static iconv_t  cd;
+static GIConv  cd;
 static guchar   param[MAXPARAM];
 static guint    paramlen = 0;
 static gint     state = S_0;
@@ -124,13 +132,13 @@ client_init ()
   const gchar *to = "utf8";
   const gchar *from = "cp866";
 
-  cd = iconv_open (to, from);
-  if (cd == (iconv_t) -1)
+  cd = g_iconv_open (to, from);
+  if (cd == (GIConv) -1)
     {
       if (errno == EINVAL)
-        g_error ("iconv_open can't convert %s to %s", from, to);
+        g_error ("g_iconv_open can't convert %s to %s", from, to);
       else
-        g_error ("iconv_open failed: %s", strerror(errno));
+        g_error ("g_iconv_open failed: %s", strerror(errno));
     }
 
   memset (&callbacks, 0, sizeof (callbacks));
@@ -152,7 +160,7 @@ client_deinit ()
   if (file_opened)
     fio_close ();
 
-  iconv_close (cd);
+  g_iconv_close (cd);
 }
 
 /* This helper does actual console output. */
@@ -435,6 +443,7 @@ get_temporary_directory (gchar *buf, gsize bufsz)
 
   if ((tmp = getenv ("TMP")) == NULL && (tmp = getenv ("TEMP")) == NULL)
     {
+#ifdef __unix__
       const gchar *list[] = { "tmp", "temp", ".tmp", NULL };
       struct passwd *pw;
       const gchar **p;
@@ -457,6 +466,13 @@ get_temporary_directory (gchar *buf, gsize bufsz)
               break;
             }
         }
+#else
+      int ret;
+
+      ret = GetTempPath(bufsz, buf);
+      if (ret != 0)
+        return buf;
+#endif
 
       if (tmp == NULL)
         {
@@ -617,7 +633,7 @@ child_watch (GPid pid, gint status, gpointer user_data)
   else
     ok = FALSE;
 
-  g_debug ("client_os_command: child pid %d exited %s", pid, ok ? "OK" : "FAIL");
+  g_debug ("client_os_command: child pid %d exited %s", (int)pid, ok ? "OK" : "FAIL");
 
   child_event_id = 0;
 }
@@ -776,7 +792,7 @@ client_do_input (guchar *buf, gsize len)
                   outleft = sizeof (buffer);
                   outptr = (gchar *)buffer;
 
-                  rc = iconv (cd, &inptr, &inleft, &outptr, &outleft);
+                  rc = g_iconv (cd, &inptr, &inleft, &outptr, &outleft);
 
                   if (rc == (size_t) -1)
                     {
@@ -784,7 +800,7 @@ client_do_input (guchar *buf, gsize len)
                         break;
                       else
                         {
-                          g_warning ("iconv: can't convert sequence: %s", strerror (errno));
+                          g_warning ("g_iconv: can't convert sequence: %s", strerror (errno));
                           break;
                         }
                     }
@@ -1173,7 +1189,7 @@ client_do_input (guchar *buf, gsize len)
       outleft = sizeof (buffer);
       outptr = (gchar *)buffer;
 
-      rc = iconv (cd, &inptr, &inleft, &outptr, &outleft);
+      rc = g_iconv (cd, &inptr, &inleft, &outptr, &outleft);
 
       if (rc == (size_t) -1)
         {
@@ -1184,7 +1200,7 @@ client_do_input (guchar *buf, gsize len)
             }
           else
             {
-              g_warning ("iconv: can't convert: %s", strerror (errno));
+              g_warning ("g_iconv: can't convert: %s", strerror (errno));
               break;
             }
         }
