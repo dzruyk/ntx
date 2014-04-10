@@ -58,8 +58,12 @@ main (int argc, char *argv[])
 
   if (g_strcmp0 (getenv ("ntx_channel"), "echo") == 0)
     chn_echo_init ();
+
+#ifdef __unix__
   else if (g_strcmp0 (getenv ("ntx_channel"), "pty") == 0)
     chn_pty_init (argc > 1 ? argv[1] : "/bin/sh");
+#endif
+
   else
     chn_telnet_init (argc > 1 ? argv[1] : "localhost", argc > 2 ? atoi (argv[2]) : 23);
 

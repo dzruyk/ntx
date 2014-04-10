@@ -1,9 +1,14 @@
-#include <sys/resource.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#ifdef __unix__
+#  include <sys/resource.h>
+#else
+#  include <limits.h>
+#  include <windows.h>
+#endif
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -193,7 +198,11 @@ fio_open (const gchar *filename, const gchar *mode)
   g_assert (child_watch_id == 0);
 
   for (i = 0; i < 2; i++) {
+#ifdef __unix__
       rc = pipe ((void *)&fdpair[i]);
+#else
+      rc = pipe ((void *)&fdpair[i], PIPE_BUF, O_BINARY);
+#endif
       if (rc == -1)
         goto err_pipe;
   }
