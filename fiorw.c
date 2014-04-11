@@ -8,7 +8,9 @@
 #else
 #  include <limits.h>
 #  include <process.h>
+#  include <stdio.h>
 #  include <windows.h>
+#  define PIPE_BUF 512
 #endif
 
 #include <glib.h>
@@ -183,6 +185,7 @@ setup_nonblock_channel (GIOChannel *channel, gboolean close_on_unref)
 }
 
 #ifdef __unix__
+//TODO: GSubprocess
 static gboolean
 fio_open (const gchar *filename, const gchar *mode)
 {
@@ -307,7 +310,7 @@ fio_open (const gchar *filename, const gchar *mode)
     return FALSE;
 
   for (i = 0; i < 2; i++) {
-      rc = pipe ((void *)&fdpair[i], PIPE_BUF, O_BINARY);
+      rc = _pipe ((void *)&fdpair[i], PIPE_BUF, O_BINARY);
       if (rc == -1)
         goto err;
   }
@@ -317,13 +320,13 @@ fio_open (const gchar *filename, const gchar *mode)
 
   //fork emulation
   if (_dup2 (fdpair[0].fdwrite, _fileno(stdout)) != 0)
-    error (1, "first dup2\n");
+    g_error ("first dup2");
   if (_dup2 (fdpair[1].fdread, _fileno(stdin)) != 0)
-    error (1, "second dup2\n");
+    g_error ("second dup2");
 
   pid = (HANDLE)_spawnlp (P_NOWAIT, "fio.exe", FIOPROG, filename, NULL);
-  if (hproc == -1)
-    error (1, "createproc error\n");
+  if (pid == -1)
+    g_error ("createproc error");
 
   // restore fds back
   _dup2 (sout, _fileno(stdout));
