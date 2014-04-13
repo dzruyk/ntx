@@ -3,14 +3,9 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#ifdef __unix__
-#  include <sys/resource.h>
-#else
-#  include <limits.h>
-#  include <process.h>
-#  include <stdio.h>
-#  include <windows.h>
-#  define PIPE_BUF 512
+
+#ifndef __unix__
+#include <windows.h>
 #endif
 
 #include <glib.h>
@@ -57,10 +52,12 @@
  *   fio_open_append(3), fio_write(3), fio_close(3), fio_write_buffer_space(3).
  */
 
-#define DEVNULL    "/dev/null"
+#define DEVNULL      "/dev/null"
 #ifdef __unix__
+#  define FIONAME    "fio"
 #  define FIOPROG    "./fio"
 #else
+#  define FIONAME    "fio.exe"
 #  define FIOPROG    "fio.exe"
 #endif
 
@@ -149,6 +146,8 @@ fio_child_exited (GPid pid, gint status, gpointer user_data)
 
   g_assert (pid >= 0);
 
+#ifdef __unix__
+
   if (WIFEXITED (status))
     {
       code = WEXITSTATUS (status);
@@ -164,6 +163,16 @@ fio_child_exited (GPid pid, gint status, gpointer user_data)
       g_warn_if_reached ();
       code = -1;
     }
+
+#else
+
+  if (GetExitCodeProcess (pid, &code) != TRUE)
+    {
+      g_warn_if_reached ();
+      code = -1;
+    }
+
+#endif
 
   /* Notify user that the coprocess has exited.
    */
@@ -184,166 +193,31 @@ setup_nonblock_channel (GIOChannel *channel, gboolean close_on_unref)
   g_io_channel_set_close_on_unref (channel, close_on_unref);
 }
 
-#ifdef __unix__
 //TODO: GSubprocess
 static gboolean
 fio_open (const gchar *filename, const gchar *mode)
 {
-  gint i, rc, nullfd;
   GPid pid;
-  struct {
-      gint fdread;
-      gint fdwrite;
-  } fdpair[2] = { { -1, -1 }, { -1, -1 } };
+  gint fdwrite, fdread;
+  gchar *argv[] = {FIONAME, FIOPROG, mode, filename, NULL};
 
-  if (child_pid >= 0)
+  if (g_spawn_async_with_pipes (NULL, argv, NULL,
+        G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_DO_NOT_REAP_CHILD,
+        NULL, NULL, &pid, &fdwrite, &fdread, NULL, NULL) != TRUE)
     return FALSE;
-
-  nullfd = open (DEVNULL, O_WRONLY | O_NOCTTY);
-  if (nullfd == -1)
-    goto err_nullfd;
-
-  g_assert (nullfd >= 3);
-  g_assert (rchannel == NULL && wchannel == NULL);
-  g_assert (child_watch_id == 0);
-
-  for (i = 0; i < 2; i++) {
-      rc = pipe ((void *)&fdpair[i]);
-      if (rc == -1)
-        goto err_pipe;
-  }
-
-  pid = fork ();
-
-  if (pid == -1)
-    goto err_fork;
-
-  if (pid == 0)
-    {
-      struct rlimit rlim;
-      gint fd, nofile;
-
-      close (0);
-      dup (fdpair[1].fdread);
-      close (1);
-      dup (fdpair[0].fdwrite);
-      close (2);
-      dup (nullfd);
-
-      rc = getrlimit (RLIMIT_NOFILE, &rlim);
-      if (rc == -1 || rlim.rlim_max == 0)
-        nofile = 1024;
-      else
-        nofile = rlim.rlim_max;
-
-      for (fd = 3; fd < nofile; fd++)
-        close (fd);
-
-      execlp ("fio", FIOPROG, mode, filename, NULL);
-
-      _exit (1);
-    }
-  else
-    {
-      /* Set write buffer to initial state.
-       */
-      writebuf_head = writebuf_tail = 0;
-
-      rchannel = g_io_channel_unix_new (fdpair[0].fdread);
-      g_assert (rchannel != NULL);
-      setup_nonblock_channel (rchannel, TRUE);
-      g_assert (rsource_id == 0);
-      rsource_id = g_io_add_watch (rchannel, G_IO_IN | G_IO_ERR | G_IO_HUP, fio_read_event, NULL);
-      g_assert (rsource_id > 0);
-
-      wchannel = g_io_channel_unix_new (fdpair[1].fdwrite);
-      g_assert (wchannel != NULL);
-      setup_nonblock_channel (wchannel, TRUE);
-
-      g_assert (child_watch_id == 0);
-      child_watch_id = g_child_watch_add (pid, fio_child_exited, NULL);
-      g_assert (child_watch_id > 0);
-
-      g_assert (child_pid < 0);
-      child_pid = pid;
-
-      /* Close file descriptors we need no more: pipe fds of child
-       * process side and /dev/null.
-       */
-      close (fdpair[0].fdwrite);
-      close (fdpair[1].fdread);
-      close (nullfd);
-    }
-
-  return TRUE;
-
-err_fork:
-  for (i = 0; i < 2; i++)
-    {
-      if (fdpair[i].fdread >= 0)
-        close (fdpair[i].fdread);
-      if (fdpair[i].fdwrite >= 0)
-        close (fdpair[i].fdwrite);
-    }
-err_pipe:
-  close (nullfd);
-err_nullfd:
-
-  return FALSE;
-}
-
-#else
-
-//FIXME: remove fatal errors
-static gboolean
-fio_open (const gchar *filename, const gchar *mode)
-{
-  gint sout, sin;
-  gint i, rc;
-  GPid pid;
-  struct {
-      gint fdread;
-      gint fdwrite;
-  } fdpair[2] = { { -1, -1 }, { -1, -1 } };
-
-  if (child_pid >= 0)
-    return FALSE;
-
-  for (i = 0; i < 2; i++) {
-      rc = _pipe ((void *)&fdpair[i], PIPE_BUF, O_BINARY);
-      if (rc == -1)
-        goto err;
-  }
-  // windows workaround
-  sout = _dup (_fileno (stdout));
-  sin = _dup (_fileno (stdin));
-
-  //fork emulation
-  if (_dup2 (fdpair[0].fdwrite, _fileno(stdout)) != 0)
-    g_error ("first dup2");
-  if (_dup2 (fdpair[1].fdread, _fileno(stdin)) != 0)
-    g_error ("second dup2");
-
-  pid = (HANDLE)_spawnlp (P_NOWAIT, "fio.exe", FIOPROG, filename, NULL);
-  if (pid == -1)
-    g_error ("createproc error");
-
-  // restore fds back
-  _dup2 (sout, _fileno(stdout));
-  _dup2 (sin, _fileno(stdin));
 
   /* Set write buffer to initial state.
    */
   writebuf_head = writebuf_tail = 0;
 
-  rchannel = g_io_channel_win32_new_fd (fdpair[0].fdread);
+  rchannel = g_io_channel_unix_new (fdread);
   g_assert (rchannel != NULL);
   setup_nonblock_channel (rchannel, TRUE);
   g_assert (rsource_id == 0);
   rsource_id = g_io_add_watch (rchannel, G_IO_IN | G_IO_ERR | G_IO_HUP, fio_read_event, NULL);
   g_assert (rsource_id > 0);
 
-  wchannel = g_io_channel_win32_new_fd (fdpair[1].fdwrite);
+  wchannel = g_io_channel_unix_new (fdwrite);
   g_assert (wchannel != NULL);
   setup_nonblock_channel (wchannel, TRUE);
 
@@ -354,19 +228,8 @@ fio_open (const gchar *filename, const gchar *mode)
   g_assert (child_pid < 0);
   child_pid = pid;
 
-  /* Close file descriptors we need no more: pipe fds of child
-   * process side and /dev/null.
-   */
-
-  close (fdpair[0].fdwrite);
-  close (fdpair[1].fdread);
-
   return TRUE;
-
-err:
-  return FALSE;
 }
-#endif
 
 static gboolean
 fio_write_event (GIOChannel *channel, GIOCondition condition, gpointer user_data)

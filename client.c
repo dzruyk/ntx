@@ -622,13 +622,18 @@ static void
 child_watch (GPid pid, gint status, gpointer user_data)
 {
   gboolean ok;
+  gint code;
 
   g_assert (child_event_id > 0);
 
   /* Successful program termination is determined by the EXIT_SUCCESS code.
    * Otherwise it is considered to have terminated abnormally.
    */
+#ifdef __unix__
   if (WIFEXITED (status) && WEXITSTATUS (status) == EXIT_SUCCESS)
+#else
+  if (GetExitCodeProcess (pid, &code) != TRUE && code == EXIT_SUCCESS)
+#endif
     ok = TRUE;
   else
     ok = FALSE;
