@@ -52,7 +52,6 @@
  *   fio_open_append(3), fio_write(3), fio_close(3), fio_write_buffer_space(3).
  */
 
-#define DEVNULL      "/dev/null"
 #ifdef __unix__
 #  define FIONAME    "fio"
 #  define FIOPROG    "./fio"
@@ -193,7 +192,6 @@ setup_nonblock_channel (GIOChannel *channel, gboolean close_on_unref)
   g_io_channel_set_close_on_unref (channel, close_on_unref);
 }
 
-//TODO: GSubprocess
 static gboolean
 fio_open (const gchar *filename, const gchar *mode)
 {

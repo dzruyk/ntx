@@ -977,7 +977,6 @@ console_size_request (GtkWidget *widget, GtkRequisition *requisition)
            face->underline_position >> 6, face->max_advance_width >> 6);
 
   /* Calculate font height, width and baseline position (in pixels). */
-  g_debug ("bbox.xMax = %d", face->bbox.xMax);
   if (face->bbox.xMin < 0)
     char_width = face->bbox.xMax * scale_x + 0.5;
   else
