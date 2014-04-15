@@ -29,6 +29,8 @@
 #define MIDDLE_MOUSE_BUTTON 2
 #define RIGHT_MOUSE_BUTTON 3
 
+#define CONSOLE_DEFAULT_RESOLUTION 96.
+
 /* Enumeration of the console widget property ids.
  */
 typedef enum
@@ -928,7 +930,17 @@ console_size_request (GtkWidget *widget, GtkRequisition *requisition)
 
   /* Get screen resolution in dots per inch. */
   screen = gtk_widget_get_screen (widget);
+
   dpi_x = gdk_screen_get_resolution (screen);
+  if (dpi_x < 0)
+    {
+      //Windows workaround
+      g_warning ("screen resolution is -1");
+
+      gdk_screen_set_resolution (screen, CONSOLE_DEFAULT_RESOLUTION);
+      dpi_x = CONSOLE_DEFAULT_RESOLUTION;
+    }
+
   dpi_y = dpi_x;
 
   fc_get_font_file (priv->font_family ? priv->font_family : FONT_FAMILY_DEFAULT,
@@ -965,6 +977,7 @@ console_size_request (GtkWidget *widget, GtkRequisition *requisition)
            face->underline_position >> 6, face->max_advance_width >> 6);
 
   /* Calculate font height, width and baseline position (in pixels). */
+  g_debug ("bbox.xMax = %d", face->bbox.xMax);
   if (face->bbox.xMin < 0)
     char_width = face->bbox.xMax * scale_x + 0.5;
   else
@@ -984,6 +997,8 @@ console_size_request (GtkWidget *widget, GtkRequisition *requisition)
 
   g_debug ("xMin %d xMax %d yMax %d yMin %d", (int)face->bbox.xMin, (int)face->bbox.xMax, (int)face->bbox.yMax, (int)face->bbox.yMin);
   g_debug ("char_width %d, char_height %d, baseline %d", char_width, char_height, baseline);
+
+  g_assert (char_width > 0 && char_height > 0);
 
   /* Calculate console window size required. */
   requisition->width = priv->char_width * priv->width;
