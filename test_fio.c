@@ -75,7 +75,8 @@ main (int argc, char *argv[])
 
   fio_set_callbacks (&callbacks, NULL);
 
-  fio_open_readonly ("/etc/passwd");
+  if (fio_open_readonly ("./console.c") == FALSE)
+    g_warning ("file opening error");
 
   fio_write ("R64\n", 4);
 
@@ -86,7 +87,11 @@ main (int argc, char *argv[])
 
   quit = 0;
 
-  fio_open_readonly ("/dev/urandom");
+  if (fio_open_readonly ("/dev/urandom") == FALSE)
+    {
+      g_warning ("second file opening error");
+      exit(1);
+    }
 
   fio_write ("R64\n", 4);
 

@@ -934,7 +934,9 @@ console_size_request (GtkWidget *widget, GtkRequisition *requisition)
   dpi_x = gdk_screen_get_resolution (screen);
   if (dpi_x < 0)
     {
-      //Windows workaround
+      /* Workaround.
+       * On Windows gdk_screen_get_resolution returns -1 for first time. 
+       */
       g_warning ("screen resolution is -1");
 
       gdk_screen_set_resolution (screen, CONSOLE_DEFAULT_RESOLUTION);
