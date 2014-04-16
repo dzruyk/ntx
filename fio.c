@@ -86,12 +86,13 @@
  * AUTHORS
  *   Grigoriy A. Sitkarev, <sitkarev@unixkomi.ru>
  */
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
-#include <limits.h>
 
 #define BUFMAX      8192
 
@@ -120,22 +121,27 @@ main (int argc, char *argv[])
   int opt;
   char *s, *mode, *c;
 
+#ifndef __unix__
+  setmode(fileno(stdout), _O_BINARY);
+  setmode(fileno(stdin), _O_BINARY);
+#endif
+
   program_name = ((s = strrchr (argv[0], '/')) != NULL ? ++s : argv[0]);
 
-  mode = "r";
+  mode = "rb";
 
   while ((opt = getopt (argc, argv, "rwa")) != -1)
     {
       switch (opt)
         {
         case 'r':
-                  mode = "r";
+                  mode = "rb";
           break;
         case 'w':
-                  mode = "w";
+                  mode = "wb";
           break;
         case 'a':
-                  mode = "a";
+                  mode = "ab";
           break;
         default:
           usage ();

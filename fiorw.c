@@ -442,26 +442,33 @@ fio_read_event (GIOChannel *channel, GIOCondition condition, gpointer user_data)
     {
       err = NULL;
       status = g_io_channel_read_chars (channel, buffer, sizeof (buffer), &len, &err);
-      g_assert ((err == NULL && status == G_IO_STATUS_NORMAL) || (err != NULL && status != G_IO_STATUS_NORMAL));
-
-      if (len > 0)
+      if (status == G_IO_STATUS_EOF)
         {
-          if (fiocb.read_data != NULL)
-            (*fiocb.read_data) ((guchar *)buffer, len, fiocb.user_data);
+          g_warning ("status OEF");
         }
-
-      if (status != G_IO_STATUS_NORMAL)
+      else
         {
-          if (status == G_IO_STATUS_AGAIN)
+          g_assert ((err == NULL && status == G_IO_STATUS_NORMAL) || (err != NULL && status != G_IO_STATUS_NORMAL));
+
+          if (len > 0)
             {
-              g_assert (err != NULL);
-              g_error_free (err);
+              if (fiocb.read_data != NULL)
+                (*fiocb.read_data) ((guchar *)buffer, len, fiocb.user_data);
             }
-          else
+
+          if (status != G_IO_STATUS_NORMAL)
             {
-              g_assert (err != NULL);
-              g_warning ("fio_read_event: error reading fd=%d: %s", g_io_channel_get_fd (channel), err->message);
-              g_error_free (err);
+              if (status == G_IO_STATUS_AGAIN)
+                {
+                  g_assert (err != NULL);
+                  g_error_free (err);
+                }
+              else
+                {
+                  g_assert (err != NULL);
+                  g_warning ("fio_read_event: error reading fd=%d: %s", g_io_channel_get_fd (channel), err->message);
+                  g_error_free (err);
+                }
             }
         }
     }

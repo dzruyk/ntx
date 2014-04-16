@@ -78,7 +78,7 @@ main (int argc, char *argv[])
   if (fio_open_readonly ("./console.c") == FALSE)
     g_warning ("file opening error");
 
-  fio_write ("R64\n", 4);
+  fio_write ("r64\n", 4);
 
   while (!quit)
     {
@@ -93,7 +93,7 @@ main (int argc, char *argv[])
       exit(1);
     }
 
-  fio_write ("R64\n", 4);
+  fio_write ("r64\n", 4);
 
   while (!quit)
     {
