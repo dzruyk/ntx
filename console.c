@@ -937,7 +937,7 @@ console_size_request (GtkWidget *widget, GtkRequisition *requisition)
       /* Workaround.
        * On Windows gdk_screen_get_resolution returns -1 for first time. 
        */
-      g_warning ("screen resolution is -1");
+      g_warning ("negative screen resolution");
 
       gdk_screen_set_resolution (screen, CONSOLE_DEFAULT_RESOLUTION);
       dpi_x = CONSOLE_DEFAULT_RESOLUTION;
