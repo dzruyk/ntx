@@ -122,8 +122,8 @@ main (int argc, char *argv[])
   char *s, *mode, *c;
 
 #ifndef __unix__
-  setmode(fileno(stdout), _O_BINARY);
-  setmode(fileno(stdin), _O_BINARY);
+  setmode (fileno (stdout), _O_BINARY);
+  setmode (fileno (stdin), _O_BINARY);
 #endif
 
   program_name = ((s = strrchr (argv[0], '/')) != NULL ? ++s : argv[0]);

@@ -469,14 +469,14 @@ get_temporary_directory (gchar *buf, gsize bufsz)
 #else
       int ret;
 
-      ret = GetTempPath(bufsz, buf);
+      ret = GetTempPath (bufsz, buf);
       if (ret != 0)
         return buf;
 #endif
 
       if (tmp == NULL)
         {
-          g_strlcpy(dirname, DEFAULT_TMP_DIR, sizeof (dirname));
+          g_strlcpy (dirname, DEFAULT_TMP_DIR, sizeof (dirname));
           tmp = dirname;
         }
     }
@@ -638,7 +638,7 @@ child_watch (GPid pid, gint status, gpointer user_data)
   else
     ok = FALSE;
 
-  g_debug ("client_os_command: child pid %d exited %s", (int)pid, ok ? "OK" : "FAIL");
+  g_debug ("client_os_command: child pid %d exited %s", (int) pid, ok ? "OK" : "FAIL");
 
   child_event_id = 0;
 }
