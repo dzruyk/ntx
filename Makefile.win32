@@ -5,7 +5,7 @@ CFLAGS = -Wall -O0 -g -D_XOPEN_SOURCE=600 -DG_ENABLE_DEBUG -D_CLIENT_DEBUG `pkg-
 CFLAGS += -I/usr/include/fontconfig
 LIBS = `pkg-config --libs gtk+-2.0` -lfreetype -lfontconfig -lm
 OBJECTS = fc.o fontsel.o console.o console_marshal.o nvt.o client.o gui.o key.o \
-	  chn.o chn_telnet.o chn_echo.o fiorw.o
+	  chn.o chn_telnet.o chn_echo.o fiorw.o os_windows.o
 HEADERS = internal.h nvt.h console.h
 BINARIES = ntx.exe test_console.exe test_fio.exe fio.exe
 
@@ -53,16 +53,19 @@ client.o: client.c internal.h
 fiorw.o: fiorw.c fiorw.h
 	$(COMPILE) -c -o $@ $<
 
+os_windows.o: os_windows.c os.h
+	$(COMPILE) -c -o $@ $<
+
 ntx.exe: main.c $(OBJECTS) $(HEADERS)
 	$(COMPILE) -o $@ main.c $(OBJECTS) $(LIBS)
 
 test_console.exe: CFLAGS += -Wno-unused-function -Wno-unused-variable \
 	-Wno-unused-but-set-variable
-test_console.exe: test_console.c console.o console_marshal.o fontsel.o fc.o
+test_console.exe: test_console.c console.o console_marshal.o fontsel.o fc.o os_windows.o
 	$(COMPILE) -o $@ $^ $(LIBS)
 
 test_fio.exe: CFLAGS += -D_GNU_SOURCE
-test_fio.exe: test_fio.c fiorw.o
+test_fio.exe: test_fio.c fiorw.o os_windows.o
 	$(COMPILE) -o $@ $^ $(LIBS)
 
 test_spawn.exe: test_spawn.c

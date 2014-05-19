@@ -6,17 +6,12 @@
 #include <unistd.h>
 #include <errno.h>
 
-#ifdef __unix__
-#  include <pwd.h>
-#else
-#  include <windows.h>
-#endif
-
+#include "chn.h"
 #include "console.h"
 #include "colors.h"
 #include "internal.h"
-#include "chn.h"
 #include "fiorw.h"
+#include "os.h"
 
 enum
 {
@@ -88,12 +83,6 @@ enum
 
 #define VERSION "3.13"
 
-#ifdef __unix__
-#  define DEFAULT_TMP_DIR         "/tmp"        /* default temporary directory */
-#else
-#  define DEFAULT_TMP_DIR         "C:\\"
-#endif
-
 #define COMMAND_WRAPPER_BIN     "cmdwrapper"  /* name of a binary to wrap C_OS_COMMAND */
 
 #define FG_COLOR(c)    (0x0f & (c))
@@ -109,7 +98,6 @@ static gboolean file_opened = FALSE;          /* TRUE indicates C_FILE_OPEN open
 static guint    child_event_id = 0;           /* event source id of external program started by C_OS_COMMAND */
 
 static void   send_response           (gchar c);
-static gchar* get_temporary_directory (gchar *buf, gsize bufsz);
 static void   client_read_data_cb     (guchar *buffer, gsize len, gpointer user_data);
 static void   client_kick_writer_cb   (gpointer user_data);
 static void   client_coproc_exited_cb (gint pid, gint code, gpointer user_data);
@@ -434,64 +422,13 @@ client_mouse_disable ()
   gui_mouse_disable ();
 }
 
-static gchar*
-get_temporary_directory (gchar *buf, gsize bufsz)
-{
-  gchar dirname[PATH_MAX];
-  struct stat st;
-  gchar *tmp;
-
-  if ((tmp = getenv ("TMP")) == NULL && (tmp = getenv ("TEMP")) == NULL)
-    {
-#ifdef __unix__
-      const gchar *list[] = { "tmp", "temp", ".tmp", NULL };
-      struct passwd *pw;
-      const gchar **p;
-
-      tmp = NULL;
-
-      do
-        {
-          errno = 0;
-          pw = getpwuid (getuid());
-        }
-      while (pw == NULL && errno == EINTR);
-
-      for (p = list; *p != NULL; p++)
-        {
-          snprintf (dirname, sizeof (dirname), "/home/%s/%s", pw->pw_name, *p);
-          if (stat (dirname, &st) != -1 && S_ISDIR (st.st_mode))
-            {
-              tmp = dirname;
-              break;
-            }
-        }
-#else
-      int ret;
-
-      ret = GetTempPath (bufsz, buf);
-      if (ret != 0)
-        return buf;
-#endif
-
-      if (tmp == NULL)
-        {
-          g_strlcpy (dirname, DEFAULT_TMP_DIR, sizeof (dirname));
-          tmp = dirname;
-        }
-    }
-
-  g_strlcpy (buf, tmp, bufsz);
-  return buf;
-}
-
 static void
 client_get_temporary_directory ()
 {
   gchar pname[PATH_MAX+1]; /* including terminating NUL and `/' */
   gsize len;
 
-  get_temporary_directory (pname, PATH_MAX);
+  os_get_temporary_directory (pname, PATH_MAX);
 
   DEBUG (">> C_GET_TEMPORARY_DIRECTORY -> %s", pname);
 
@@ -521,7 +458,7 @@ client_file_open (const gchar *filename, gchar how)
    */
   if (filename[0] != '/' || strchr (filename, '/') == NULL)
     {
-      g_snprintf (nm, sizeof (nm), "%s/%s", get_temporary_directory (tmp, sizeof (tmp)), filename);
+      g_snprintf (nm, sizeof (nm), "%s/%s", os_get_temporary_directory (tmp, sizeof (tmp)), filename);
       filename = nm;
     }
 
@@ -587,7 +524,7 @@ client_file_exists (const gchar *filename)
    */
   if (filename[0] != '/' || strchr (filename, '/') == NULL)
     {
-      g_snprintf (nm, sizeof (nm), "%s/%s", get_temporary_directory (tmp, sizeof (tmp)), filename);
+      g_snprintf (nm, sizeof (nm), "%s/%s", os_get_temporary_directory (tmp, sizeof (tmp)), filename);
       filename = nm;
     }
 
@@ -622,18 +559,13 @@ static void
 child_watch (GPid pid, gint status, gpointer user_data)
 {
   gboolean ok;
-  gint code;
 
   g_assert (child_event_id > 0);
 
   /* Successful program termination is determined by the EXIT_SUCCESS code.
    * Otherwise it is considered to have terminated abnormally.
    */
-#ifdef __unix__
-  if (WIFEXITED (status) && WEXITSTATUS (status) == EXIT_SUCCESS)
-#else
-  if (GetExitCodeProcess (pid, &code) != TRUE && code == EXIT_SUCCESS)
-#endif
+  if (os_process_is_exited (pid, status) && os_process_get_exit_status (pid, status) == EXIT_SUCCESS)
     ok = TRUE;
   else
     ok = FALSE;

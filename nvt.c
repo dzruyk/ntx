@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "nvt.h"
+#include "os.h"
 
 
 #define DEFAULT_TIMEOUT 10
@@ -396,11 +397,7 @@ nvt_ready (GObject *object, GAsyncResult *res, gpointer user_data)
   g_assert (sock != NULL);
   g_socket_set_blocking (sock, FALSE);
 
-#ifdef __unix__
-  channel = g_io_channel_unix_new (g_socket_get_fd (sock));
-#else
-  channel = g_io_channel_win32_new_socket (g_socket_get_fd (sock));
-#endif
+  channel = os_g_io_channel_sock_new (g_socket_get_fd (sock));
 
   g_assert (channel != NULL);
   g_io_channel_set_encoding (channel, NULL, NULL);

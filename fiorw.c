@@ -4,14 +4,11 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#ifndef __unix__
-#include <windows.h>
-#endif
-
 #include <glib.h>
 #include <gio/gio.h>
 
 #include "fiorw.h"
+#include "os.h"
 
 /** 3
  *   fio - API functions for coprocess file I/O
@@ -51,16 +48,6 @@
  *   fio(1), fio_set_callbacks(3), fio_open_readonly(3), fio_open_writeonly(3),
  *   fio_open_append(3), fio_write(3), fio_close(3), fio_write_buffer_space(3).
  */
-
-#ifdef __unix__
-#  define FIOPROG    "./fio"
-#  define g_io_channel_fd_new g_io_channel_unix_new
-#  define g_io_channel_get_fd g_io_channel_unix_get_fd
-#else
-#  define FIOPROG    "./fio.exe"
-#  define g_io_channel_get_fd g_io_channel_win32_get_fd
-#  define g_io_channel_fd_new g_io_channel_win32_new_fd
-#endif
 
 #define WBUFSZ     4096
 
@@ -147,33 +134,19 @@ fio_child_exited (GPid pid, gint status, gpointer user_data)
 
   g_assert (pid >= 0);
 
-#ifdef __unix__
-
-  if (WIFEXITED (status))
+  if (os_process_is_exited (pid, status))
     {
-      code = WEXITSTATUS (status);
-      g_assert (code >= 0);
+      code = os_process_get_exit_status (pid, &status);
     }
-  else if (WIFSIGNALED (status))
+  else if (os_process_is_signaled (pid, status))
     {
-      code = WTERMSIG (status) + 255;
-      g_assert (code >= 256);
+      code = os_process_get_signal (pid, status);
     }
   else
     {
       g_warn_if_reached ();
       code = -1;
     }
-
-#else
-
-  if (GetExitCodeProcess (pid, &code) != TRUE)
-    {
-      g_warn_if_reached ();
-      code = -1;
-    }
-
-#endif
 
   /* Notify user that the coprocess has exited.
    */
@@ -214,14 +187,14 @@ fio_open (const gchar *filename, const gchar *mode)
    */
   writebuf_head = writebuf_tail = 0;
 
-  rchannel = g_io_channel_fd_new (fdread);
+  rchannel = os_g_io_channel_fd_new (fdread);
   g_assert (rchannel != NULL);
   setup_nonblock_channel (rchannel, TRUE);
   g_assert (rsource_id == 0);
   rsource_id = g_io_add_watch (rchannel, G_IO_IN | G_IO_ERR | G_IO_HUP, fio_read_event, NULL);
   g_assert (rsource_id > 0);
 
-  wchannel = g_io_channel_fd_new (fdwrite);
+  wchannel = os_g_io_channel_fd_new (fdwrite);
   g_assert (wchannel != NULL);
   setup_nonblock_channel (wchannel, TRUE);
 
@@ -274,7 +247,7 @@ fio_write_event (GIOChannel *channel, GIOCondition condition, gpointer user_data
           else
             {
               g_assert (err != NULL);
-              g_error ("fio_write_event: error writing fd=%d: %s", g_io_channel_get_fd (wchannel), err->message);
+              g_error ("fio_write_event: error writing fd=%d: %s", os_g_io_channel_get_fd (wchannel), err->message);
               g_error_free (err);
             }
         }
@@ -388,7 +361,7 @@ fio_write (const void *buf, gsize len)
             }
           else
             {
-              g_error ("fio_write: error writing fd=%d: %s", g_io_channel_get_fd (wchannel), err->message);
+              g_error ("fio_write: error writing fd=%d: %s", os_g_io_channel_get_fd (wchannel), err->message);
               g_error_free (err);
               written = -1;
             }
@@ -436,7 +409,7 @@ fio_read_event (GIOChannel *channel, GIOCondition condition, gpointer user_data)
 
   g_assert (channel != NULL && channel == rchannel);
 
-  /* g_debug ("fio_read_event: fd=%d condition=0x%04x", g_io_channel_get_fd (channel), condition); */
+  /* g_debug ("fio_read_event: fd=%d condition=0x%04x", os_g_io_channel_get_fd (channel), condition); */
 
   if (condition & G_IO_IN)
     {
@@ -466,7 +439,7 @@ fio_read_event (GIOChannel *channel, GIOCondition condition, gpointer user_data)
               else
                 {
                   g_assert (err != NULL);
-                  g_warning ("fio_read_event: error reading fd=%d: %s", g_io_channel_get_fd (channel), err->message);
+                  g_warning ("fio_read_event: error reading fd=%d: %s", os_g_io_channel_get_fd (channel), err->message);
                   g_error_free (err);
                 }
             }
@@ -479,13 +452,13 @@ fio_read_event (GIOChannel *channel, GIOCondition condition, gpointer user_data)
        */
       if (condition & G_IO_ERR)
         {
-          g_debug ("fio_read_event: channel error fd=%d", g_io_channel_get_fd (channel));
+          g_debug ("fio_read_event: channel error fd=%d", os_g_io_channel_get_fd (channel));
           if (fiocb.io_error != NULL)
             (*fiocb.io_error) (FALSE, fiocb.user_data);
         }
       else
         {
-          g_debug ("fio_read_event: channel hangup fd=%d", g_io_channel_get_fd (channel));
+          g_debug ("fio_read_event: channel hangup fd=%d", os_g_io_channel_get_fd (channel));
           if (fiocb.io_error != NULL)
             (*fiocb.io_error) (TRUE, fiocb.user_data);
         }
