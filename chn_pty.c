@@ -82,7 +82,7 @@ chn_pty_finalize ()
 {
   g_debug ("chn_pty_finalize");
 
-  if (chn_pty_is_connected())
+  if (chn_pty_is_connected ())
     chn_pty_disconnect ();
 
   if (options.cmdline != NULL)
@@ -111,7 +111,7 @@ chn_pty_read_event (GIOChannel *channel, GIOCondition condition, gpointer user_d
           prepend_len = 0;
         }
       else
-        status = g_io_channel_read_chars (channel, (gchar *)buffer, sizeof(buffer), &len, &err);
+        status = g_io_channel_read_chars (channel, (gchar *)buffer, sizeof (buffer), &len, &err);
 
       switch (status)
         {
@@ -229,7 +229,7 @@ chn_pty_connect ()
       g_io_channel_set_flags (channel, G_IO_FLAG_NONBLOCK, NULL);
 
       g_assert (source_id == 0);
-      source_id = g_io_add_watch(channel, G_IO_IN, chn_pty_read_event, NULL);
+      source_id = g_io_add_watch (channel, G_IO_IN, chn_pty_read_event, NULL);
       g_assert (source_id > 0);
 
       rc = close (ptsfd);

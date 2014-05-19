@@ -75,5 +75,5 @@ fio: fio.o
 	$(COMPILE) -o $@ $<
 
 clean:
-	-rm -rf *.o $(BINARIES) *~
+	rm -rf *.o $(BINARIES) *~
 

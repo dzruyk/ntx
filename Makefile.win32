@@ -75,5 +75,5 @@ fio.exe: fio.o
 	$(COMPILE) -o $@ $< $(LIBS)
 
 clean:
-	-rm -rf *.o $(BINARIES) *~
+	rm -rf *.o $(BINARIES) *~
 

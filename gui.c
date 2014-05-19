@@ -96,7 +96,7 @@ console_text_pasted_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
   if (client_in_telnet_mode ())
     {
       g_debug("text-pasted in telnet mode %s", s);
-      chn_write (s, strlen(s));
+      chn_write (s, strlen (s));
     }
   else
     {
@@ -162,7 +162,7 @@ console_key_press_event_cb (GtkWidget *widget, GdkEventKey *event, gpointer user
   g_return_val_if_fail (event != NULL, FALSE);
   g_return_val_if_fail (IS_CONSOLE (widget), FALSE);
 
-  if (client_in_telnet_mode())
+  if (client_in_telnet_mode ())
     {
       gunichar uc;
 
@@ -215,7 +215,7 @@ console_size_allocate_cb (GtkWidget *widget, GtkAllocation *allocation, gpointer
   /* `Screen size changed' sequence is sent only when in non-TELNET mode.
    */
 
-  if (!client_in_telnet_mode())
+  if (!client_in_telnet_mode ())
     {
       buf[0] = '-';
       buf[1] = '9';

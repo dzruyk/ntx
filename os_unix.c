@@ -29,7 +29,7 @@ os_get_temporary_directory (gchar *buf, gsize bufsz)
       do
         {
           errno = 0;
-          pw = getpwuid (getuid());
+          pw = getpwuid (getuid ());
         }
       while (pw == NULL && errno == EINTR);
 

@@ -317,9 +317,9 @@ console_key_press_event_cb (GtkWidget *widget, GdkEventKey *event, gpointer user
 
   g_assert (widget == user_data);
 
-  keymap = gdk_keymap_get_default();
+  keymap = gdk_keymap_get_default ();
 
-  gdk_keymap_translate_keyboard_state(keymap, event->hardware_keycode, event->state, 0, &kv, NULL, &lvl, NULL);
+  gdk_keymap_translate_keyboard_state (keymap, event->hardware_keycode, event->state, 0, &kv, NULL, &lvl, NULL);
 
   if (kv == GDK_V &&
       (event->state & GDK_CONTROL_MASK) != 0)
@@ -356,7 +356,7 @@ console_key_press_event_cb (GtkWidget *widget, GdkEventKey *event, gpointer user
   } G_STMT_END
 
 static GString*
-get_selected_text(Console *console)
+get_selected_text (Console *console)
 {
   ConsoleTextSelection *cs = &console->priv->text_selection;
   GString *res;
@@ -589,7 +589,7 @@ console_get_type (void)
           (GClassInitFunc) console_class_init,        /* class_init */
           NULL,                        /* class_finalize */
           NULL,                        /* class_data */
-          sizeof(Console),
+          sizeof (Console),
           0,                        /* n_preallocs */
           (GInstanceInitFunc) console_init        /* instance_init */
         };
@@ -605,7 +605,7 @@ console_get_type (void)
  */
 
 GtkWidget*
-console_new()
+console_new ()
 {
   return GTK_WIDGET (g_object_new (console_get_type (), NULL));
 }

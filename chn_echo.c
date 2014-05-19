@@ -99,7 +99,7 @@ chn_echo_write (const void *buf, gsize len)
 
       if (prepend_len > 0)
         {
-          g_assert (sizeof(buffer) >= sizeof(prepend));
+          g_assert (sizeof (buffer) >= sizeof (prepend));
           memcpy (buffer, prepend, prepend_len);
           buffer_len += prepend_len;
           prepend_len = 0;

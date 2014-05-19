@@ -126,7 +126,7 @@ client_init ()
       if (errno == EINVAL)
         g_error ("g_iconv_open can't convert %s to %s", from, to);
       else
-        g_error ("g_iconv_open failed: %s", strerror(errno));
+        g_error ("g_iconv_open failed: %s", strerror (errno));
     }
 
   memset (&callbacks, 0, sizeof (callbacks));

@@ -94,6 +94,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <gtk/gtk.h>
+#include "os.h"
+
 #define BUFMAX      8192
 
 enum
@@ -121,10 +124,8 @@ main (int argc, char *argv[])
   int opt;
   char *s, *mode, *c;
 
-#ifndef __unix__
-  setmode (fileno (stdout), _O_BINARY);
-  setmode (fileno (stdin), _O_BINARY);
-#endif
+  os_file_set_binary_mode (stdin);
+  os_file_set_binary_mode (stdout);
 
   program_name = ((s = strrchr (argv[0], '/')) != NULL ? ++s : argv[0]);
 
@@ -161,7 +162,7 @@ main (int argc, char *argv[])
   c = argv[0];
 
   /* HACK: replace win bslashes with unix slashes. */
-  while ((c = strchr(c, '\\')) != NULL)
+  while ((c = strchr (c, '\\')) != NULL)
         *c++ = '/';
 
   fp = fopen (argv[0], mode);
