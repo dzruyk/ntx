@@ -51,15 +51,15 @@
 
 #define WBUFSZ     4096
 
-static GIOChannel  *rchannel          = NULL;      /* read from child I/O channel */
-static GIOChannel  *wchannel          = NULL;      /* write to child I/O channel */
-static guint        rsource_id        = 0;         /* read channel event source id */
-static guint        wsource_id        = 0;         /* write channel event source id */
-static guint        child_watch_id    = 0;         /* watch on child process */
-static GPid        child_pid         = -1;        /* PID of a child process */
-static guchar       writebuf[WBUFSZ];              /* write buffer */
-static guint        writebuf_tail     = 0;         /* write buffer tail */
-static guint        writebuf_head     = 0;         /* write buffer head */
+static GIOChannel  *rchannel          = NULL;           /* read from child I/O channel */
+static GIOChannel  *wchannel          = NULL;           /* write to child I/O channel */
+static guint        rsource_id        = 0;              /* read channel event source id */
+static guint        wsource_id        = 0;              /* write channel event source id */
+static guint        child_watch_id    = 0;              /* watch on child process */
+static GPid         child_pid         = OS_INVALID_PID;  /* PID of a child process */
+static guchar       writebuf[WBUFSZ];                   /* write buffer */
+static guint        writebuf_tail     = 0;              /* write buffer tail */
+static guint        writebuf_head     = 0;              /* write buffer head */
 static FIOCallbacks fiocb;
 
 static gboolean fio_read_event  (GIOChannel *channel, GIOCondition condition, gpointer user_data);
@@ -120,8 +120,8 @@ fio_end ()
    * watch_id to initial values. The cooperating process must terminate when it
    * sees EOF on his pipe end.
    */
-  if (child_pid >= 0)
-    child_pid = -1;
+  if (child_pid != OS_INVALID_PID)
+    child_pid = OS_INVALID_PID;
 
   if (child_watch_id > 0)
     child_watch_id = 0;
@@ -173,13 +173,15 @@ fio_open (const gchar *filename, const gchar *mode)
   GPid pid;
   gint fdwrite, fdread;
   gchar *argv[] = {FIOPROG, mode, filename, NULL};
-  GError *err = NULL;
 
-  if (g_spawn_async_with_pipes (NULL, argv, NULL,
-        G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_DO_NOT_REAP_CHILD,
-        NULL, NULL, &pid, &fdwrite, &fdread, NULL, &err) != TRUE)
+  g_assert (rchannel == NULL && wchannel == NULL);
+  g_assert (child_watch_id == 0);
+
+  if (child_pid != OS_INVALID_PID)
+    return FALSE;
+
+  if (os_process_spawn_with_pipes(argv, &fdwrite, &fdread, &pid) != TRUE)
     {
-      g_warning ("g_spawn_error: %s\n", err->message);
       return FALSE;
     }
 
@@ -202,7 +204,7 @@ fio_open (const gchar *filename, const gchar *mode)
   child_watch_id = g_child_watch_add (pid, fio_child_exited, NULL);
   g_assert (child_watch_id > 0);
 
-  g_assert ((gint)child_pid < 0);
+  g_assert ((gint)child_pid != OS_INVALID_PID);
   child_pid = pid;
 
   return TRUE;
@@ -415,33 +417,30 @@ fio_read_event (GIOChannel *channel, GIOCondition condition, gpointer user_data)
     {
       err = NULL;
       status = g_io_channel_read_chars (channel, buffer, sizeof (buffer), &len, &err);
-      if (status == G_IO_STATUS_EOF)
+
+      g_assert (err == NULL && status == G_IO_STATUS_NORMAL);
+
+      if (len > 0)
         {
-          g_warning ("status OEF");
+          if (fiocb.read_data != NULL)
+            (*fiocb.read_data) ((guchar *)buffer, len, fiocb.user_data);
         }
-      else
+
+      if (status != G_IO_STATUS_NORMAL)
         {
-          g_assert ((err == NULL && status == G_IO_STATUS_NORMAL) || (err != NULL && status != G_IO_STATUS_NORMAL));
-
-          if (len > 0)
+          if (status == G_IO_STATUS_AGAIN)
             {
-              if (fiocb.read_data != NULL)
-                (*fiocb.read_data) ((guchar *)buffer, len, fiocb.user_data);
+              g_assert (err != NULL);
+              g_error_free (err);
             }
-
-          if (status != G_IO_STATUS_NORMAL)
+          else if (status == G_IO_STATUS_EOF)
             {
-              if (status == G_IO_STATUS_AGAIN)
-                {
-                  g_assert (err != NULL);
-                  g_error_free (err);
-                }
-              else
-                {
-                  g_assert (err != NULL);
-                  g_warning ("fio_read_event: error reading fd=%d: %s", os_g_io_channel_get_fd (channel), err->message);
-                  g_error_free (err);
-                }
+              g_warning ("status OEF");
+            }
+          else if (err != NULL)
+            {
+              g_warning ("fio_read_event: error reading fd=%d: %s", os_g_io_channel_get_fd (channel), err->message);
+              g_error_free (err);
             }
         }
     }

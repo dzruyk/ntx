@@ -838,7 +838,7 @@ static gboolean
 console_text_pasted_cb (GtkWidget *widget, const gchar *s, gpointer user_data)
 {
   Console *console = (Console*) widget;
-  gchar *p;
+  const gchar *p;
   gint len;
 
   g_debug ("text-pasted event callback: get string %s", s);

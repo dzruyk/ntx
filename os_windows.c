@@ -34,6 +34,25 @@ os_get_temporary_directory (gchar *buf, gsize bufsz)
 }
 
 gboolean
+os_process_spawn_with_pipes(gchar **argv,
+                         gint *input,
+                         gint *output,
+                         GPid *child_pid)
+{
+  GError *err = NULL;
+  gboolean ret;
+  
+  ret = g_spawn_async_with_pipes (NULL, argv, NULL,
+        G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_DO_NOT_REAP_CHILD,
+        NULL, NULL, child_pid, input, output, NULL, &err);
+
+  if (ret != TRUE)
+    g_warning ("os_process_spawn_with_pipes error %s", err->message);
+
+  return ret;
+}
+
+gboolean
 os_process_is_exited (GPid pid, gint status)
 {
   if (GetExitCodeProcess (pid, &status) && status != STILL_ACTIVE)
