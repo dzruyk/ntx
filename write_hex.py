@@ -17,5 +17,8 @@ while True:
     if a == "":
         break
     a = a.rstrip("\n").rstrip("\r")
+    if len(a) % 2 != 0:
+        sys.stderr.write("error: not odd len!")
+        continue
     sys.stdout.write(a.decode("hex"))
     sys.stdout.flush()

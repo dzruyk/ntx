@@ -80,9 +80,10 @@ static guint        console_signals[LAST_SIGNAL] = { 0 };
 #define CONSOLE_HEIGHT_MAX      1024
 #define CONSOLE_HEIGHT_DEFAULT  24
 
-#define FONT_FAMILY_DEFAULT     "Andale Mono"
-#define FONT_STYLE_DEFAULT      "normal"
-#define FONT_SIZE_DEFAULT       12
+//#define FONT_FAMILY_DEFAULT     "Andale Mono"
+#define FONT_FAMILY_DEFAULT     "Courier new"
+#define FONT_STYLE_DEFAULT      "regular"
+#define FONT_SIZE_DEFAULT       8
 
 /* GDK color scale to convert to cairo colorspace.
  */

@@ -12,6 +12,7 @@
 #  define os_g_io_channel_get_fd        g_io_channel_unix_get_fd
 #  define os_g_io_channel_sock_new      g_io_channel_unix_new
 #else
+#  include <windows.h>
 #  define OS_INVALID_PID                INVALID_HANDLE_VALUE
 #  define os_file_set_binary_mode(file) setmode (fileno (file), _O_BINARY)
 #  define OS_DEFAULT_TMP_DIR            "C:\\"
